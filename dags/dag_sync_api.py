@@ -1,12 +1,16 @@
 import pandas as pd
 from datetime import datetime, timedelta
 from random import randint
+import requests
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.operators.dummy_operator import DummyOperator
 
+OPEN_WEATHER_URL = 'https://api.open-meteo.com/v1/forecast?latitude=46.95&longitude=7.45&daily=temperature_2m_max,temperature_2m_min,uv_index_max,uv_index_clear_sky_max,windspeed_10m_max&timezone=Europe%2FBerlin'
 
 
+# dummy dataframe for testing purpose
+"""
 df = pd.DataFrame(
     {
         'date': [pd.to_datetime(datetime.today() + timedelta(i)).date() for i in range(50)],
@@ -14,9 +18,14 @@ df = pd.DataFrame(
         'wind_kmh': [randint(0, 120) for i in range(50)]
     }
 )
+"""
 
-def _print_head():
-    print(df.head(10))
+
+def _get_weather_data():
+    ow_json = requests.get(OPEN_WEATHER_URL).json()
+    df = pd.DataFrame.from_dict(ow_json)
+    print(df.head())
+
 
 
 
@@ -38,7 +47,7 @@ def build_demo_dag(dag_configs=None):
 
         print_df_head = PythonOperator(
             task_id='print_df_head',
-            python_callable=_print_head
+            python_callable=_get_weather_data
         )
 
         start.set_downstream(print_df_head)
