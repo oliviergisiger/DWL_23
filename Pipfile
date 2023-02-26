@@ -5,6 +5,7 @@ name = "pypi"
 
 [packages]
 pandas = "*"
+apache-airflow = {extras = ["aws"], version = "*"}
 
 [dev-packages]
 
