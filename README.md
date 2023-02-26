@@ -14,9 +14,9 @@ And convert actual weather information into information about energy production 
 ## Structure
 
 The is tried to be written in a hexagonal architectural pattern (ports - adapters). The repo structure is therefore (UPDATE) 
-
+```
 DWL_23
-├── app 
+├── app
 │   ├── scrape_products
 │   │   ├── adapters
 │   │   │   ├── sources
@@ -38,6 +38,7 @@ DWL_23
 ├── Pipfile.lock
 ├── .env
 └── .gitignore
+```
 
 
 
