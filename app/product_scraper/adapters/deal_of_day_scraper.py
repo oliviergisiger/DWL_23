@@ -1,13 +1,10 @@
 import requests
+import time
+import random
 import pandas as pd
 from typing import List
 from bs4 import BeautifulSoup
-from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.firefox.options import Options
-from selenium.webdriver.common.by import By
-from selenium.common.exceptions import TimeoutException
+from playwright.sync_api import Playwright, sync_playwright, TimeoutError as PlaywrightTimeoutError
 from product_scraper.port.sources import Scraper
 from product_scraper.domain import ProductItem
 from dataclasses import asdict
@@ -39,8 +36,12 @@ class DayDealScraper(Scraper):
         articles = soup.find_all('article')
 
         for article in articles:
-            href = article.find('a', class_='sc-qlvix8-0 dgECEw')['href']
-            urls.append(f"https://www.digitec.ch{href}")
+
+            try:
+                href = article.find('a', class_='sc-qlvix8-0 dgECEw')['href']
+                urls.append(f"https://www.digitec.ch{href}")
+            except TypeError:
+                continue
 
         return urls
 
@@ -59,35 +60,27 @@ class DayDealScraper(Scraper):
             soup = BeautifulSoup(r.content, 'lxml')
 
             name = soup.find('h1', class_='sc-12r9jwk-0 hcjJEJ').text
-            price = soup.find('div', class_='sc-18ppxou-1 gwNBaL').text.split('.')[0]
+            price = float(soup.find('div', class_='sc-18ppxou-1 gwNBaL').text.split('.')[0])
 
-            # scrape emission. use selenium to expand section
-            firefox_options = Options()
-            user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.517 Safari/537.36'
-            firefox_options.add_argument(('user-agent={0}').format(user_agent))
-            firefox_options.add_argument("--headless")
-
-            driver = webdriver.Firefox(options=firefox_options)
-            driver.get(url)
-
+            # Use Playwright to scrape emission information
             try:
-                button = WebDriverWait(driver, 10).until(
-                    EC.presence_of_element_located((By.XPATH, '//*[@id="sustainability"]/button')))
-                button.click()
+                with sync_playwright() as pw:
+                    browser = pw.chromium.launch(headless=False)
+                    context = browser.new_context()
+                    page = context.new_page()
+                    page.goto(url)
 
-                section = WebDriverWait(driver, 10).until(
-                    EC.presence_of_element_located((
-                        By.CSS_SELECTOR,
-                        '#pageContent > div > div.sc-c3y39x-0.bAaSKU > section:nth-child(3) > div.sc-l19rvt-2.gpTNdM.sc-1wsbwny-0.EvAlG.fade-enter-done')))
-                sustainability_soup = BeautifulSoup(section.get_attribute('innerHTML'), 'lxml')
-                driver.close()
+                    # Find sustainability section and open it
+                    page.locator("[data-test=\"sustainability\"]").click()
+                    emission = page.get_by_role("row", name="CO₂-Emission").text_content()
+                    emission = float(emission.split("Emission")[1].split("kg")[0])
 
-                emission = sustainability_soup.find('td', class_='sc-12uqqiy-4 hLZuEg').nextSibling.text
+                    context.close()
+                    browser.close()
+                    time.sleep(random.randint(3, 8))
 
-            # Catch exception if sustainability section does not exist
-            except TimeoutException as ex:
-                print(f"Exception raised: {ex}")
-                driver.close()
+            except PlaywrightTimeoutError:
+                print(f"{url} has no sustainability section")
                 continue
 
             product = ProductItem(name=name, price=price, emission=emission)
