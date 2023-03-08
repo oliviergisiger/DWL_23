@@ -19,6 +19,7 @@ API_CONFIGS = {
 }
 
 
+
 def _sync_weather_data():
     source = WeatherDataSource(url=API_CONFIGS.get('url'),
                                headers=API_CONFIGS.get('headers'))
@@ -27,13 +28,10 @@ def _sync_weather_data():
                               sink=sink)
     usecase.invoke_workflow()
 
-
-
-
-def build_demo_dag(dag_configs=None):
+def build_sync_dag(dag_configs=None):
     with DAG(
-        dag_id='sync_api_demo_dag',
-        description='tests airflow functionality, prints out head of pd.DataFrame',
+        dag_id='sync_weather_data',
+        description='requests data from srg meteo api, writes df to file',
         schedule_interval='0 12 * * *',
         start_date=datetime(2023, 2, 25),
         end_date=None
@@ -46,13 +44,13 @@ def build_demo_dag(dag_configs=None):
             task_id='end'
         )
 
-        print_df_head = PythonOperator(
+        sync_weather_data = PythonOperator(
             task_id='sync_weather_data',
             python_callable=_sync_weather_data
         )
 
-        start.set_downstream(print_df_head)
-        print_df_head.set_downstream(end)
+        start.set_downstream(sync_weather_data)
+        sync_weather_data.set_downstream(end)
 
     return dag
 
