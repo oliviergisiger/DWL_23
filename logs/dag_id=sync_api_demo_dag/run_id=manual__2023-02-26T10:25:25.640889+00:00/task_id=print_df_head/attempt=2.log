@@ -1,0 +1,32 @@
+[2023-02-26T11:04:09.255+0000] {taskinstance.py:1165} INFO - Dependencies all met for <TaskInstance: sync_api_demo_dag.print_df_head manual__2023-02-26T10:25:25.640889+00:00 [queued]>
+[2023-02-26T11:04:09.269+0000] {taskinstance.py:1165} INFO - Dependencies all met for <TaskInstance: sync_api_demo_dag.print_df_head manual__2023-02-26T10:25:25.640889+00:00 [queued]>
+[2023-02-26T11:04:09.270+0000] {taskinstance.py:1362} INFO - 
+--------------------------------------------------------------------------------
+[2023-02-26T11:04:09.272+0000] {taskinstance.py:1363} INFO - Starting attempt 2 of 2
+[2023-02-26T11:04:09.273+0000] {taskinstance.py:1364} INFO - 
+--------------------------------------------------------------------------------
+[2023-02-26T11:04:09.287+0000] {taskinstance.py:1383} INFO - Executing <Task(PythonOperator): print_df_head> on 2023-02-26 10:25:25.640889+00:00
+[2023-02-26T11:04:09.295+0000] {standard_task_runner.py:54} INFO - Started process 1581 to run task
+[2023-02-26T11:04:09.299+0000] {standard_task_runner.py:82} INFO - Running: ['***', 'tasks', 'run', 'sync_api_demo_dag', 'print_df_head', 'manual__2023-02-26T10:25:25.640889+00:00', '--job-id', '11', '--raw', '--subdir', 'DAGS_FOLDER/dag_sync_api.py', '--cfg-path', '/tmp/tmp5n_tc8bu']
+[2023-02-26T11:04:09.302+0000] {standard_task_runner.py:83} INFO - Job 11: Subtask print_df_head
+[2023-02-26T11:04:09.305+0000] {dagbag.py:525} INFO - Filling up the DagBag from /opt/***/dags/dag_sync_api.py
+[2023-02-26T11:04:09.649+0000] {task_command.py:384} INFO - Running <TaskInstance: sync_api_demo_dag.print_df_head manual__2023-02-26T10:25:25.640889+00:00 [running]> on host bfb2558877aa
+[2023-02-26T11:04:09.710+0000] {taskinstance.py:1592} INFO - Exporting the following env vars:
+AIRFLOW_CTX_DAG_OWNER=***
+AIRFLOW_CTX_DAG_ID=sync_api_demo_dag
+AIRFLOW_CTX_TASK_ID=print_df_head
+AIRFLOW_CTX_EXECUTION_DATE=2023-02-26T10:25:25.640889+00:00
+AIRFLOW_CTX_TRY_NUMBER=2
+AIRFLOW_CTX_DAG_RUN_ID=manual__2023-02-26T10:25:25.640889+00:00
+[2023-02-26T11:04:09.816+0000] {logging_mixin.py:117} INFO -                         latitude  ...                                              daily
+time                       46.96  ...  [2023-02-26, 2023-02-27, 2023-02-28, 2023-03-0...
+temperature_2m_max         46.96  ...                [1.9, 3.5, 2.2, 3.3, 4.5, 7.4, 6.7]
+temperature_2m_min         46.96  ...         [-1.8, -2.1, -3.3, -3.2, -3.3, -0.8, -1.4]
+uv_index_max               46.96  ...            [3.4, 2.75, 3.6, 3.3, 2.55, 3.55, 3.25]
+uv_index_clear_sky_max     46.96  ...             [3.4, 3.4, 3.6, 3.55, 3.55, 3.55, 3.5]
+
+[5 rows x 9 columns]
+[2023-02-26T11:04:09.818+0000] {python.py:177} INFO - Done. Returned value was: None
+[2023-02-26T11:04:09.829+0000] {taskinstance.py:1406} INFO - Marking task as SUCCESS. dag_id=sync_api_demo_dag, task_id=print_df_head, execution_date=20230226T102525, start_date=20230226T110409, end_date=20230226T110409
+[2023-02-26T11:04:09.888+0000] {local_task_job.py:164} INFO - Task exited with return code 0
+[2023-02-26T11:04:09.910+0000] {local_task_job.py:273} INFO - 1 downstream tasks scheduled from follow-on schedule check
