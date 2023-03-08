@@ -5,7 +5,6 @@ import requests
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.operators.dummy_operator import DummyOperator
-
 from weather_data.adapters.weather_data_source import WeatherDataSource
 from weather_data.adapters.weather_data_sink import WeatherDataSink
 from weather_data.usecases.sync_weather_data import SyncWeatherData
@@ -67,5 +66,4 @@ _dag = build_demo_dag()
 
 # run dag from pycharm
 if __name__ == '__main__':
-    _dag.clear()
-    _dag.run()
+    _sync_weather_data()
