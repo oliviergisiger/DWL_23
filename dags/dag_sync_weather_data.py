@@ -6,25 +6,27 @@ from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.operators.dummy_operator import DummyOperator
 
-OPEN_WEATHER_URL = 'https://api.open-meteo.com/v1/forecast?latitude=46.95&longitude=7.45&daily=temperature_2m_max,temperature_2m_min,uv_index_max,uv_index_clear_sky_max,windspeed_10m_max&timezone=Europe%2FBerlin'
+from weather_data.adapters.weather_data_source import WeatherDataSource
+from weather_data.adapters.weather_data_sink import WeatherDataSink
+from weather_data.usecases.sync_weather_data import SyncWeatherData
 
 
-# dummy dataframe for testing purpose
-"""
-df = pd.DataFrame(
-    {
-        'date': [pd.to_datetime(datetime.today() + timedelta(i)).date() for i in range(50)],
-        'temperature_c': [randint(-10, 30) for i in range(50)],
-        'wind_kmh': [randint(0, 120) for i in range(50)]
+API_CONFIGS = {
+    'url': 'https://api.srgssr.ch/srf-meteo/forecast/46.9478%2C7.4474?type=hour',
+    'headers': {
+        'authorization': 'Bearer Ntn2y4I54auYOuz9Lp6Z5z6AZSe7',
+        'accept': 'application/json'
     }
-)
-"""
+}
 
 
-def _get_weather_data():
-    ow_json = requests.get(OPEN_WEATHER_URL).json()
-    df = pd.DataFrame.from_dict(ow_json)
-    print(df.head())
+def _sync_weather_data():
+    source = WeatherDataSource(url=API_CONFIGS.get('url'),
+                               headers=API_CONFIGS.get('headers'))
+    sink = WeatherDataSink()
+    usecase = SyncWeatherData(source=source,
+                              sink=sink)
+    usecase.invoke_workflow()
 
 
 
@@ -46,8 +48,8 @@ def build_demo_dag(dag_configs=None):
         )
 
         print_df_head = PythonOperator(
-            task_id='print_df_head',
-            python_callable=_get_weather_data
+            task_id='sync_weather_data',
+            python_callable=_sync_weather_data
         )
 
         start.set_downstream(print_df_head)
