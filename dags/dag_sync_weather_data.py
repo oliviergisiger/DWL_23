@@ -59,7 +59,7 @@ def build_sync_dag(dag_configs=None):
 
 
 
-_dag = build_demo_dag()
+_dag = build_sync_dag()
 
 
 # run dag from pycharm
