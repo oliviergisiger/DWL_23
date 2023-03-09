@@ -8,9 +8,9 @@ class SyncWeatherData:
         self.source = source
         self.sink = sink
 
-    def invoke_workflow(self):
-        df = self.source.get_weather_df()
-        self.sink.write_to_file(df)
+    def invoke_workflow(self, execution_date):
+        df = self.source._get_dummy_df() #change to get_weather_data
+        self.sink.write_to_file(df, execution_date)
 
 
 if __name__ == '__main__':
