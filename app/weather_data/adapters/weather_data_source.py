@@ -8,6 +8,8 @@ from weather_data.adapters import SRG_METEO_API_CONFIGS as configs
 
 #SRG_WEATHER_API_TOKEN = 'Ntn2y4I54auYOuz9Lp6Z5z6AZSe7'
 
+# dummy cahnge for test
+
 
 
 class WeatherDataSource(SyncAPI):
