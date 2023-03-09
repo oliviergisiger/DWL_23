@@ -2,6 +2,7 @@
 /logs/*
 /logs/dag_id=sync_api_demo_dag/
 /logs/dag_processor_manager/
-/logs/scheduler/
+/logs/scheduler
 /logs/scheduler/*
 logs/*
+/logs/scheduler/
