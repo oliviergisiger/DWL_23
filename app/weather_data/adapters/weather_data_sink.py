@@ -1,33 +1,29 @@
 # ToDo: This script should load data to a datalake. STRUCTURED
 # as a placeholder, data is loaded to a file
 #-------------------------------------------------------------
+import logging
+from datetime import datetime
 import os
 import pathlib
 from pathlib import Path
 import pandas as pd
 
-PATH = '../../../data/weather.csv'
+PATH = ''
 
 
 class WeatherDataSink():
 
     def __init__(self):
-        pass
+        self.file = 'weather_data_bern'
+
+    def write_to_file(self, df: pd.DataFrame, execution_date: datetime):
+        filename = self._get_file_name(self.file, execution_date.date())
+        df.to_csv(filename)
+        logging.info(f'written {df.shape} to file: {filename}')
 
 
-    def write_to_file(self, df):
-        df_in = self._read_existing_file()
-        if not df_in:
-            df.to_csv(PATH, index=False)
-        else:
-            df_out = pd.concat([df_in, df])
-            df_out.to_csv(PATH, index=False)
-
-
-    @staticmethod
-    def _read_existing_file():
-        if Path(PATH).is_file():
-            return pd.read_csv(PATH)
+    def _get_file_name(self, filename, execution_date):
+        return f'{filename}_{execution_date}.csv'
 
 
 

@@ -20,20 +20,20 @@ API_CONFIGS = {
 
 
 
-def _sync_weather_data():
+def _sync_weather_data(execution_date):
     source = WeatherDataSource(url=API_CONFIGS.get('url'),
                                headers=API_CONFIGS.get('headers'))
     sink = WeatherDataSink()
     usecase = SyncWeatherData(source=source,
                               sink=sink)
-    usecase.invoke_workflow()
+    usecase.invoke_workflow(execution_date=execution_date)
 
 def build_sync_dag(dag_configs=None):
     with DAG(
         dag_id='sync_weather_data',
         description='requests data from srg meteo api, writes df to file',
         schedule_interval='0 12 * * *',
-        start_date=datetime(2023, 2, 25),
+        start_date=datetime(2023, 3, 9),
         end_date=None
     ) as dag:
         start = DummyOperator(
