@@ -8,8 +8,6 @@ from weather_data.adapters import SRG_METEO_API_CONFIGS as configs
 
 #SRG_WEATHER_API_TOKEN = 'Ntn2y4I54auYOuz9Lp6Z5z6AZSe7'
 
-# dummy cahnge for test
-
 
 
 class WeatherDataSource(SyncAPI):
@@ -29,6 +27,10 @@ class WeatherDataSource(SyncAPI):
 
     def _get_json(self):
         return requests.get(url=self._url, headers=self._headers).json()
+
+    def _get_dummy_df(self): # for testing reasons
+        return pd.DataFrame({'a': [1, 1, 2, 1, 23, 4, 5, 1, 1],
+                             'b': [1, 1, 2, 1, 23, 4, 5, 1, 1]})
 
 
 
