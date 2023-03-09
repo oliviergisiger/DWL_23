@@ -73,7 +73,8 @@ class DayDealScraper(Scraper):
                     # Find sustainability section and open it
                     page.locator("[data-test=\"sustainability\"]").click()
                     emission = page.get_by_role("row", name="CO₂-Emission").text_content()
-                    emission = float(emission.split("Emission")[1].split("kg")[0])
+                    emission = emission.split("Emission")[1].split("kg")[0].replace("’","")
+                    emission = float(emission)
 
                     context.close()
                     browser.close()
