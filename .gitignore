@@ -1,5 +1,6 @@
 /data/*
 /logs/*
-**/logs/
-.idea
-
+/logs/dag_id=sync_api_demo_dag
+/logs/dag_processor_manager
+/logs/scheduler/
+logs/*
