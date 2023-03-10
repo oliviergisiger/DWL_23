@@ -9,8 +9,8 @@ class SyncWeatherData:
         self.sink = sink
 
     def invoke_workflow(self, execution_date):
-        df = self.source._get_dummy_df() #change to get_weather_data
-        self.sink.write_to_file(df, execution_date)
+        data = self.source._get_dummy_json() #change to get_weather_data
+        self.sink.write_to_s3(data, execution_date)
 
 
 if __name__ == '__main__':

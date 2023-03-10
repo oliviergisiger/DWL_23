@@ -5,8 +5,8 @@ name = "pypi"
 
 [packages]
 pandas = "*"
-apache-airflow = {extras = ["aws"], version = "*"}
 playwright = "*"
+apache-airflow = {extras = ["amazon"], version = "*"}
 
 [dev-packages]
 
