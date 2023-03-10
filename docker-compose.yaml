@@ -64,6 +64,7 @@ x-airflow-common:
     - ./dags:/opt/airflow/dags
     - ./logs:/opt/airflow/logs
     - ./plugins:/opt/airflow/plugins
+    # - ./minio:/data/minio
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on
@@ -275,20 +276,20 @@ services:
       airflow-init:
         condition: service_completed_successfully
 
-  minio:
-    image: 'minio/minio:latest'
-    ports:
-      - '${FORWARD_MINIO_PORT:-9000}:9000'
-      - '${FORWARD_MINIO_CONSOLE_PORT:-9090}:9090'
-    environment:
-      MINIO_ROOT_USER: 'dev'
-      MINIO_ROOT_PASSWORD: 'minio'
-    volumes:
-      - 'minio:/data/minio'
-    command: minio server /data/minio --console-address ":9090"
-volumes:
-  minio:
-    driver: local
+#  minio:
+#    image: 'minio/minio:latest'
+#    ports:
+#      - '${FORWARD_MINIO_PORT:-9000}:9000'
+#      - '${FORWARD_MINIO_CONSOLE_PORT:-9090}:9090'
+#    environment:
+#      MINIO_ROOT_USER: 'dev'
+#      MINIO_ROOT_PASSWORD: 'minio'
+#    volumes:
+#      - ./minio:/data/minio
+#    command: minio server /data/minio --console-address ":9090"
+# volumes:
+#    minio:
+#        driver: local
 
 volumes:
   postgres-db-volume:
