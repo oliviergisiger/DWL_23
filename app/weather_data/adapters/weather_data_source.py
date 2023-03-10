@@ -16,21 +16,13 @@ class WeatherDataSource(SyncAPI):
         self._url = url
         self._headers = headers
 
+    def get_json(self):
+        response = requests.get(url=self._url, headers=self._headers)
+        return response.json()
 
-    def get_weather_df(self):
-        index_column = configs.get('index_column')
-        resp = self._get_json()
-        df = pd.DataFrame.from_dict(resp['forecast']['hour'])
-        df[index_column] = pd.to_datetime(df[index_column])
-        return df[configs.get('columns')]
-
-
-    def _get_json(self):
-        return requests.get(url=self._url, headers=self._headers).json()
-
-    def _get_dummy_df(self): # for testing reasons
-        return pd.DataFrame({'a': [1, 1, 2, 1, 23, 4, 5, 1, 1],
-                             'b': [1, 1, 2, 1, 23, 4, 5, 1, 1]})
+    def _get_dummy_json(self): # for testing reasons
+        return {'a': [1, 1, 2, 1, 23, 4, 5, 1, 1],
+                             'b': [1, 1, 2, 1, 23, 4, 5, 1, 1]}
 
 
 
