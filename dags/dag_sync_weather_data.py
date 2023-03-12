@@ -1,14 +1,15 @@
-import pandas as pd
-from datetime import datetime, timedelta
-from random import randint
-import requests
+from datetime import datetime
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.operators.dummy_operator import DummyOperator
-from weather_data.adapters.weather_data_source import WeatherDataSource
-from weather_data.adapters.weather_data_sink import WeatherDataSink
-from weather_data.usecases.sync_weather_data import SyncWeatherData
+from api_sync.usecases.sync_api_usecase import SyncAPI
+from api_sync.adapters.sync_api_source import APISyncRequestSourceRaw
+from api_sync.adapters.sync_api_sink import APISyncRequestSinkRaw
 
+# configs
+FILETYPE_CONFIGS = {
+    'filetype': 'weather_data_bern'
+}
 
 API_CONFIGS = {
     'url': 'https://api.srgssr.ch/srf-meteo/forecast/46.9478%2C7.4474?type=hour',
@@ -26,13 +27,15 @@ S3_CONFIGS = {
 
 
 def _sync_weather_data(execution_date):
-    source = WeatherDataSource(url=API_CONFIGS.get('url'),
-                               headers=API_CONFIGS.get('headers'))
-    sink = WeatherDataSink(filetype='weather_data_bern',
-                           connection=S3_CONFIGS.get('connection'))
-    usecase = SyncWeatherData(source=source,
-                              sink=sink)
-    usecase.invoke_workflow(execution_date=execution_date)
+    source = APISyncRequestSourceRaw(url=API_CONFIGS.get('url'),
+                                     headers=API_CONFIGS.get('headers'))
+    sink = APISyncRequestSinkRaw(filetype=FILETYPE_CONFIGS.get('filetype'),
+                                 connection=S3_CONFIGS.get('connection'))
+    usecase = SyncAPI(source=source, sink=sink)
+    usecase.execute_usecase(execution_date=execution_date)
+
+    # to be used later as an xcom
+    return execution_date
 
 
 
@@ -63,13 +66,4 @@ def build_sync_dag(dag_configs=None):
     return dag
 
 
-
-
-
-
 _dag = build_sync_dag()
-
-
-# run dag from pycharm
-if __name__ == '__main__':
-    _sync_weather_data()
