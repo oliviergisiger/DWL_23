@@ -72,6 +72,9 @@ class DayDealScraper(Scraper):
 
                     # Find sustainability section and open it
                     page.locator("[data-test=\"sustainability\"]").click()
+                    compensation_price = page.get_by_role("row", name="Compensation amount").text_content()
+                    compensation_price = compensation_price.split("CHF ")[1].replace("’","")
+                    compensation_price = float(compensation_price)
                     emission = page.get_by_role("row", name="CO₂-Emission").text_content()
                     emission = emission.split("Emission")[1].split("kg")[0].replace("’","")
                     emission = float(emission)
@@ -84,7 +87,8 @@ class DayDealScraper(Scraper):
                 print(f"{url} has no sustainability section")
                 continue
 
-            product = ProductItem(name=name, price=price, emission=emission)
+            product = ProductItem(name=name, price=price, emission=emission,
+                                  compensation_price=compensation_price)
             products.append(asdict(product))
 
             print(asdict(product))
