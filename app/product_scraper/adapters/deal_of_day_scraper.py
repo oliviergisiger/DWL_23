@@ -77,6 +77,11 @@ class DayDealScraper(Scraper):
                     page = context.new_page()
                     page.goto(url)
 
+                    # Find weight under product Specifications > Show more
+                    page.locator("[data-test=\"showMoreButton-specifications\"]").click()
+                    weight = page.text_content("td:text(\"Weight\") + td").split("\xa0")
+                    weight = " ".join(weight)
+
                     # Find sustainability section and open it
                     page.locator("[data-test=\"sustainability\"]").click()
                     compensation_price = page.get_by_role("row", name="Compensation amount").text_content()
@@ -96,6 +101,7 @@ class DayDealScraper(Scraper):
             product = ProductItem(name=name,
                                   price=price,
                                   category=category,
+                                  weight=weight,
                                   emission=emission,
                                   compensation_price=compensation_price)
             products.append(asdict(product))
