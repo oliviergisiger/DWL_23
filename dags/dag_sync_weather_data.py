@@ -14,13 +14,13 @@ FILETYPE_CONFIGS = {
 API_CONFIGS = {
     'url': 'https://api.srgssr.ch/srf-meteo/forecast/46.9478%2C7.4474?type=hour',
     'headers': {
-        'authorization': 'Bearer Ntn2y4I54auYOuz9Lp6Z5z6AZSe7',
+        'authorization': 'Bearer Ntn2y4I54auYOuz9Lp6Z5z6AZSe7',  # g2UzkG9CHifRew5jetKxk3NNvoWt
         'accept': 'application/json'
     }
 }
 
 S3_CONFIGS = {
-    'connection': 'minio_s3'
+    'connection': 'S3_DEVELOPMENT'  #change to "S3_PRODUCTION" for prduction :)
 }
 
 
@@ -35,7 +35,7 @@ def _sync_weather_data(execution_date):
     usecase.execute_usecase(execution_date=execution_date)
 
     # to be used later as an xcom
-    return execution_date
+    return str(execution_date)
 
 
 
