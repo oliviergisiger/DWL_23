@@ -7,6 +7,7 @@ class ProductItem():
     """
     name: str
     price: float
+    category: str
     emission: float
     compensation_price: float
 

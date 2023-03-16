@@ -61,33 +61,42 @@ class DayDealScraper(Scraper):
 
             name = soup.find('h1', class_='sc-12r9jwk-0 hcjJEJ').text
             price = float(soup.find('div', class_='sc-18ppxou-1 gwNBaL').text.split('.')[0])
+            # Narrow down navigation section to get category
+            navigation = soup.find('ol', class_='sc-4cfuhz-2 ipoVcw')
+            navigation_parts = navigation.find_all('li', class_='sc-4cfuhz-3 iIgemP')
+            category = [subcategory.text for subcategory in navigation_parts][-2]
 
+            time.sleep(random.randint(2, 4))
             # Use Playwright to scrape emission information
             try:
                 with sync_playwright() as pw:
-                    browser = pw.chromium.launch(headless=False)
-                    context = browser.new_context()
+                    agent = 'userMozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) ' \
+                            'Chrome/83.0.4103.116 Safari/537.36'
+                    browser = pw.chromium.launch(headless=True)
+                    context = browser.new_context(user_agent=agent)
                     page = context.new_page()
                     page.goto(url)
 
                     # Find sustainability section and open it
                     page.locator("[data-test=\"sustainability\"]").click()
                     compensation_price = page.get_by_role("row", name="Compensation amount").text_content()
-                    compensation_price = compensation_price.split("CHF ")[1].replace("’","")
+                    compensation_price = compensation_price.split("CHF ")[1].replace("’", "")
                     compensation_price = float(compensation_price)
                     emission = page.get_by_role("row", name="CO₂-Emission").text_content()
-                    emission = emission.split("Emission")[1].split("kg")[0].replace("’","")
+                    emission = emission.split("Emission")[1].split("kg")[0].replace("’", "")
                     emission = float(emission)
 
                     context.close()
                     browser.close()
-                    time.sleep(random.randint(3, 8))
 
             except PlaywrightTimeoutError:
                 print(f"{url} has no sustainability section")
                 continue
 
-            product = ProductItem(name=name, price=price, emission=emission,
+            product = ProductItem(name=name,
+                                  price=price,
+                                  category=category,
+                                  emission=emission,
                                   compensation_price=compensation_price)
             products.append(asdict(product))
 
