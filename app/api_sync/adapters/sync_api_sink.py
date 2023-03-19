@@ -20,7 +20,7 @@ class APISyncRequestSinkRaw(APISyncRequestSink):
         s3 = S3Hook(self._connection)
         s3.load_bytes(bytes_data=bytes_json,
                       key=filename,
-                      bucket_name="raw",
+                      bucket_name="s3-raw-data-dwl23",
                       replace=True)
 
         logging.info(f'written {len(data)} to file: {filename}')
