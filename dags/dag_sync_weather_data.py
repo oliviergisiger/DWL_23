@@ -7,11 +7,14 @@ from api_sync.adapters.sync_api_source import APISyncRequestSourceRaw
 from api_sync.adapters.sync_api_sink import APISyncRequestSinkRaw
 from airflow.models import Variable
 
+# runtime configs
 RUNTIME_CONFIG_VAR = "sync_weather_data_runtime_config"
-RUNTIME_CONFIG = Variable.get(RUNTIME_CONFIG_VAR, deserialize_json=True)
+RUNTIME_CONFIG = Variable.get(RUNTIME_CONFIG_VAR,
+                              deserialize_json=True,
+                              default_var={})
 
-
-ACCESS_TOKEN = RUNTIME_CONFIG.get("access_token")
+ACCESS_TOKEN = RUNTIME_CONFIG.get("access_token",
+                                  default_var="")
 
 
 # configs
@@ -50,7 +53,7 @@ def _sync_weather_data(execution_date):
 def build_sync_dag(dag_configs=None):
     with DAG(
         dag_id='sync_weather_data',
-        description='requests data from srg meteo api, writes df to file',
+        description='requests data from srg meteo api, writes dict to json ',
         schedule_interval='0 12 * * *',
         start_date=datetime(2023, 3, 7),
         end_date=None
