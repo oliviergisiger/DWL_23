@@ -5,6 +5,14 @@ from airflow.operators.dummy_operator import DummyOperator
 from api_sync.usecases.sync_api_usecase import SyncAPI
 from api_sync.adapters.sync_api_source import APISyncRequestSourceRaw
 from api_sync.adapters.sync_api_sink import APISyncRequestSinkRaw
+from airflow.models import Variable
+
+RUNTIME_CONFIG_VAR = "sync_weather_data_runtime_config"
+RUNTIME_CONFIG = Variable.get(RUNTIME_CONFIG_VAR, deserialize_json=True)
+
+
+ACCESS_TOKEN = RUNTIME_CONFIG.get("access_token")
+
 
 # configs
 FILETYPE_CONFIGS = {
@@ -12,9 +20,9 @@ FILETYPE_CONFIGS = {
 }
 
 API_CONFIGS = {
-    'url': 'https://api.srgssr.ch/srf-meteo/forecast/46.9478%2C7.4474?type=hour',
+    'url': 'https://api.srgssr.ch/srf-meteo/forecast/46.9490,7.3871?type=hour',
     'headers': {
-        'authorization': 'Bearer Ntn2y4I54auYOuz9Lp6Z5z6AZSe7',  # g2UzkG9CHifRew5jetKxk3NNvoWt
+        'authorization': f'Bearer {ACCESS_TOKEN}',  # g2UzkG9CHifRew5jetKxk3NNvoWt
         'accept': 'application/json'
     }
 }
