@@ -13,8 +13,7 @@ RUNTIME_CONFIG = Variable.get(RUNTIME_CONFIG_VAR,
                               deserialize_json=True,
                               default_var={})
 
-ACCESS_TOKEN = RUNTIME_CONFIG.get("access_token",
-                                  default_var="")
+ACCESS_TOKEN = RUNTIME_CONFIG.get("access_token")
 
 
 # configs
