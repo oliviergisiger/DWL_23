@@ -291,14 +291,13 @@ services:
 #    minio:
 #        driver: local
 
-volumes:
-  postgres-db-volume:
-
-
-services:
   web:
-    image: mcr.microsoft.com/playwright:v1.28.0
+    image: mcr.microsoft.com/playwright:v1.32.0-focal
     environment:
       - DISPLAY=host.docker.internal:0 # Replace this line with the appropriate value DISPLAY=:0 for windows
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
+
+volumes:
+  postgres-db-volume:
+
