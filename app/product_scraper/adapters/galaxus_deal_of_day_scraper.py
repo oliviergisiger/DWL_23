@@ -5,12 +5,12 @@ import pandas as pd
 from typing import List
 from bs4 import BeautifulSoup
 from playwright.sync_api import Playwright, sync_playwright, TimeoutError as PlaywrightTimeoutError
-from product_scraper.port.sources import Scraper
+from product_scraper.port.sources import ScraperSource
 from product_scraper.domain import ProductItem
 from dataclasses import asdict
 
 
-class GalaxusDayDealScraper(Scraper):
+class GalaxusDayDealScraper(ScraperSource):
 
     def __init__(self, url):
         self.url = url

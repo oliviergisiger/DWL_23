@@ -1,16 +1,18 @@
-import requests
-import time
 import random
-import pandas as pd
-from typing import List
-from bs4 import BeautifulSoup
-from playwright.sync_api import Playwright, sync_playwright, TimeoutError as PlaywrightTimeoutError
-from product_scraper.port.sources import Scraper
-from product_scraper.domain import ProductItem
+import time
 from dataclasses import asdict
+from typing import List
+
+import pandas as pd
+import requests
+from bs4 import BeautifulSoup
+from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
+
+from product_scraper.domain import ProductItem
+from product_scraper.port.sources import ScraperSource
 
 
-class DigitecDayDealScraper(Scraper):
+class DigitecDayDealScraperSource(ScraperSource):
 
     def __init__(self, url):
         self.url = url
@@ -112,7 +114,7 @@ class DigitecDayDealScraper(Scraper):
         return products_df
 
 
-if __name__ == '__main__':
-    url = 'https://www.digitec.ch/en/daily-deal'
-    day_deals = DigitecDayDealScraper(url)
-    day_deals.get_product_info_df()
+# if __name__ == '__main__':
+#     url = 'https://www.digitec.ch/en/daily-deal'
+#     day_deals = DigitecDayDealScraperSource(url)
+#     day_deals.get_product_info_df()
