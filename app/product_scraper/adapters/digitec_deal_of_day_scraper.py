@@ -10,19 +10,19 @@ from product_scraper.domain import ProductItem
 from dataclasses import asdict
 
 
-class DayDealScraper(Scraper):
+class DigitecDayDealScraper(Scraper):
 
     def __init__(self, url):
         self.url = url
         self.urls = self._get_product_links(self.url)
 
-
     def get_product_info_df(self):
         """
         Return pd.DataFrame with product information from deals of the day.
         """
-        return self._get_product_info()
-
+        product_info_df = self._get_product_info()
+        print(product_info_df)
+        return product_info_df
 
     def _get_product_links(self, url: str) -> List[str]:
         """
@@ -45,7 +45,6 @@ class DayDealScraper(Scraper):
 
         return urls
 
-
     def _get_product_info(self):
         """
         Scrape product info of every subpage
@@ -66,7 +65,7 @@ class DayDealScraper(Scraper):
             navigation_parts = navigation.find_all('li', class_='sc-4cfuhz-3 iIgemP')
             category = [subcategory.text for subcategory in navigation_parts][-2]
 
-            time.sleep(random.randint(2, 4))
+            time.sleep(random.randint(4, 6))
             # Use Playwright to scrape emission information
             try:
                 with sync_playwright() as pw:
@@ -109,14 +108,11 @@ class DayDealScraper(Scraper):
             print(asdict(product))
 
         products_df = pd.DataFrame(products)
-        print(products_df)
 
         return products_df
 
 
-
 if __name__ == '__main__':
-
     url = 'https://www.digitec.ch/en/daily-deal'
-    day_deals = DayDealScraper(url)
-    day_deals._get_product_info()
+    day_deals = DigitecDayDealScraper(url)
+    day_deals.get_product_info_df()
