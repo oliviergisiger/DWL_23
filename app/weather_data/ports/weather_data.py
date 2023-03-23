@@ -1,12 +1,15 @@
-
 from abc import ABC, abstractmethod
 
+import pandas as pd
 
 
 class WeatherDataSource(ABC):
 
     @abstractmethod
-    def source(self):
+    def read_file(self, filename: str) -> pd.DataFrame:
+        """
+        reads in a file (json) return a pd.DataFrame
+        """
         pass
 
 
@@ -14,5 +17,8 @@ class WeatherDataSource(ABC):
 class WeatherDataSink(ABC):
 
     @abstractmethod
-    def sink(self):
+    def export_data(self, data: pd.DataFrame) -> None:
+        """
+        reads pd.DataFrame and writes it to a relational DB table.
+        """
         pass
