@@ -292,9 +292,9 @@ services:
 #        driver: local
 
   selenium:
-    image: selenium/standalone-chrome
+    image: seleniarm/standalone-chromium:latest
     ports:
-      - "4444:4444"
+      - 4444:4444
 
 volumes:
   postgres-db-volume:

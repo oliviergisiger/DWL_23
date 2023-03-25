@@ -1,1 +1,1 @@
-FROM selenium/standalone-chrome
+FROM seleniarm/standalone-chromium:latest

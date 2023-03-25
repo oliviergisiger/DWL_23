@@ -6,7 +6,7 @@ import pandas as pd
 from typing import List
 from bs4 import BeautifulSoup
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -85,10 +85,12 @@ class DigitecDayDealScraper(Scraper):
             options.add_argument('--no-sandbox')
             options.add_argument('-headless')
 
-
             # Launch the browser
-            driver = webdriver.Remote(command_executor='http://172.18.0.9:4444/wd/hub',
-                                      options=options)
+            #driver = webdriver.Chrome('chromedriver', options=options)
+            # Docker driver
+            logging.info('"http://172.25.0.4:4444/wd/hub"')
+            driver = webdriver.Remote("http://172.25.0.4:4444/wd/hub",
+                                      DesiredCapabilities.CHROME)
 
             driver.maximize_window()
 
@@ -113,7 +115,6 @@ class DigitecDayDealScraper(Scraper):
                 show_more_button.click()
                 weight = WebDriverWait(driver, 10).until(EC.presence_of_element_located(
                     (By.XPATH, '//td[text()="Weight"]/following-sibling::td'))).text.strip()
-                print(weight)
 
             except TimeoutException:
                 print(f"{url} has no sustainability section")
