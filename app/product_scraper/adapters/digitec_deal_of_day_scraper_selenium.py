@@ -1,13 +1,13 @@
 import requests
 import time
 import random
+import logging
 import pandas as pd
 from typing import List
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
@@ -60,8 +60,8 @@ class DigitecDayDealScraper(Scraper):
 
         products = []
         for url in urls:
+            logging.info(url)
             print(url)
-
             r = requests.get(url)
             soup = BeautifulSoup(r.content, 'lxml')
 
@@ -73,16 +73,23 @@ class DigitecDayDealScraper(Scraper):
             category = [subcategory.text for subcategory in navigation_parts][-2]
 
             # Use Selenium to scrape emission information
-            options = Options()
+            options = webdriver.ChromeOptions()
+            options.add_argument('--ignore-ssl-errors=yes')
+            options.add_argument('--ignore-certificate-errors')
 
             # Set user agent
             user_agent = 'userMozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) ' \
                          'Chrome/83.0.4103.116 Safari/537.36'
             options.add_argument(f'user-agent={user_agent}')
+            options.add_argument('--disable-dev-shm-usage')
+            options.add_argument('--no-sandbox')
             options.add_argument('-headless')
 
+
             # Launch the browser
-            driver = webdriver.Chrome(options=options)
+            driver = webdriver.Remote(command_executor='http://172.18.0.9:4444/wd/hub',
+                                      options=options)
+
             driver.maximize_window()
 
             # Stealth selenium
@@ -130,7 +137,7 @@ class DigitecDayDealScraper(Scraper):
                 emission = float(emission)
 
             except TimeoutException:
-                print(f"{url} has no sustainability section")
+                logging.info(f"{url} has no sustainability section")
                 continue
 
             finally:
@@ -144,14 +151,14 @@ class DigitecDayDealScraper(Scraper):
                                   compensation_price=compensation_price)
             products.append(asdict(product))
 
-            print(asdict(product))
+            logging.info(asdict(product))
 
         products_df = pd.DataFrame(products)
 
         return products_df
 
 
-# if __name__ == '__main__':
-#     url = 'https://www.digitec.ch/en/daily-deal'
-#     day_deals = DigitecDayDealScraper(url)
-#     day_deals.get_product_info_df()
+if __name__ == '__main__':
+    url = 'https://www.digitec.ch/en/daily-deal'
+    day_deals = DigitecDayDealScraper(url)
+    day_deals.get_product_info_df()
