@@ -33,7 +33,7 @@ def get_aws_session_credentials(expiration_time):
     aws_session = re.search(r'aws_session_token=(.*)', resp).group(1)
 
     return {
-        "aws_access_key": aws_key,
+        "aws_access_key_id": aws_key,
         "aws_secret_access_key": aws_secret,
         "aws_session_token": aws_session
     }
