@@ -1,4 +1,5 @@
 from datetime import datetime
+from time import time
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.operators.dummy_operator import DummyOperator
@@ -6,6 +7,11 @@ from api_sync.usecases.sync_api_usecase import SyncAPI
 from api_sync.adapters.sync_api_source import APISyncRequestSourceRaw
 from api_sync.adapters.sync_api_sink import APISyncRequestSinkRaw
 from airflow.models import Variable
+from dags.dag_utils import update_connection, get_aws_session_credentials
+
+# dynamic environment settings
+ENVIRONMENT_VAR = "ENVIRONMENT"
+ENVIRONMENT = Variable.get(ENVIRONMENT_VAR, default_var='LOCAL_DEV')
 
 # runtime configs
 RUNTIME_CONFIG_VAR = "sync_weather_data_runtime_config"
@@ -29,18 +35,23 @@ API_CONFIGS = {
     }
 }
 
-S3_CONFIGS = {
-    'connection': 'S3_DEVELOPMENT'  #change to "S3_PRODUCTION" for prduction :)
-}
+S3_CONNECTION = 'S3_DEVELOPMENT' if ENVIRONMENT == 'LOCAL_DEV' else 'S3_PRODUCTION'
+
+
 
 
 
 
 def _sync_weather_data(execution_date):
+
+    if ENVIRONMENT != 'LOCAL_DEV':
+        aws_session_credentials = get_aws_session_credentials(time())
+        update_connection(S3_CONNECTION, _extra=aws_session_credentials)
+
     source = APISyncRequestSourceRaw(url=API_CONFIGS.get('url'),
                                      headers=API_CONFIGS.get('headers'))
     sink = APISyncRequestSinkRaw(filetype=FILETYPE_CONFIGS.get('filetype'),
-                                 connection=S3_CONFIGS.get('connection'))
+                                 connection=S3_CONNECTION)
     usecase = SyncAPI(source=source, sink=sink)
     usecase.execute_usecase(execution_date=execution_date)
 
