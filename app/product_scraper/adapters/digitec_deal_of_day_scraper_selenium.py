@@ -6,7 +6,7 @@ import pandas as pd
 from typing import List
 from bs4 import BeautifulSoup
 from selenium import webdriver
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+from selenium.webdriver import ChromeOptions
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -60,7 +60,6 @@ class DigitecDayDealScraper(Scraper):
 
         products = []
         for url in urls:
-            logging.info(url)
             print(url)
             r = requests.get(url)
             soup = BeautifulSoup(r.content, 'lxml')
@@ -73,86 +72,95 @@ class DigitecDayDealScraper(Scraper):
             category = [subcategory.text for subcategory in navigation_parts][-2]
 
             # Use Selenium to scrape emission information
-            options = webdriver.ChromeOptions()
-            options.add_argument('--ignore-ssl-errors=yes')
-            options.add_argument('--ignore-certificate-errors')
+            options = ChromeOptions()
+            # Adding argument to disable the AutomationControlled flag
+            options.add_argument("--disable-blink-features=AutomationControlled")
+            # Exclude the collection of enable-automation switches
+            options.add_experimental_option("excludeSwitches", ["enable-automation"])
+            # Turn-off userAutomationExtension
+            options.add_experimental_option("useAutomationExtension", False)
+            options.add_argument("--window-size=640,1280")
+            options.add_argument("--headless")
+            options.add_argument('--disable-dev-shm-usage')
+            options.add_argument("--disable-extensions")
+            options.add_argument('--no-sandbox')
 
             # Set user agent
-            user_agent = 'userMozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) ' \
-                         'Chrome/83.0.4103.116 Safari/537.36'
+            user_agent_list = ['Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
+                               'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36']
+            user_agent = random.choice(user_agent_list)
             options.add_argument(f'user-agent={user_agent}')
-            options.add_argument('--disable-dev-shm-usage')
-            options.add_argument('--no-sandbox')
-            options.add_argument('-headless')
 
             # Launch the browser
             #driver = webdriver.Chrome('chromedriver', options=options)
             # Docker driver
-            logging.info('"http://172.25.0.4:4444/wd/hub"')
-            driver = webdriver.Remote("http://172.25.0.4:4444/wd/hub",
-                                      DesiredCapabilities.CHROME)
+            with webdriver.Remote("http://172.21.0.5:4444/wd/hub", options=options) as driver:
 
-            driver.maximize_window()
+                # Changing the property of the navigator value for webdriver to undefined
+                driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
 
-            # Stealth selenium
-            stealth(driver,
-                    languages=["en-US", "en"],
-                    vendor="Google Inc.",
-                    platform="Win32",
-                    webgl_vendor="Intel Inc.",
-                    renderer="Intel Iris OpenGL Engine",
-                    fix_hairline=True,
-                    )
+                # Stealth selenium
+                # stealth(driver,
+                #         languages=["en-US", "en"],
+                #         vendor="Google Inc.",
+                #         platform="Win32",
+                #         webgl_vendor="Intel Inc.",
+                #         renderer="Intel Iris OpenGL Engine",
+                #         fix_hairline=True,
+                #         )
 
-            # Navigate to the URL
-            driver.get(url)
-            time.sleep(random.randint(4, 6))
+                # Navigate to the URL
+                driver.get(url)
+                time.sleep(random.randint(4, 6))
 
-            try:
-                # Find weight under product Specifications > Show more
-                show_more_button = WebDriverWait(driver, 10).until(
-                    EC.presence_of_element_located((By.CSS_SELECTOR, '[data-test="showMoreButton-specifications"]')))
-                show_more_button.click()
-                weight = WebDriverWait(driver, 10).until(EC.presence_of_element_located(
-                    (By.XPATH, '//td[text()="Weight"]/following-sibling::td'))).text.strip()
+                try:
+                    # Find weight under product Specifications > Show more
+                    show_more_button = WebDriverWait(driver, 10).until(
+                        EC.presence_of_element_located((By.CSS_SELECTOR, '[data-test="showMoreButton-specifications"]')))
+                    show_more_button.click()
+                    time.sleep(random.randint(1, 3))
+                    weight = WebDriverWait(driver, 10).until(EC.presence_of_element_located(
+                        (By.XPATH, '//td[text()="Weight"]/following-sibling::td'))).text.strip()
 
-            except TimeoutException:
-                print(f"{url} has no sustainability section")
-                continue
+                except TimeoutException:
+                    print(f"{url} has no weight section")
+                    continue
 
-            try:
-                driver.refresh()
-                # Find sustainability section and open it
-                sustainability_section = WebDriverWait(driver, 10).until(
-                    EC.presence_of_element_located((By.CSS_SELECTOR, '[data-test="sustainability"]')))
-                sustainability_section.click()
+                try:
+                    driver.refresh()
+                    time.sleep(random.randint(1, 3))
+                    print("Refreshed driver")
+                    # Find sustainability section and open it
+                    sustainability_section = WebDriverWait(driver, 10).until(
+                        EC.presence_of_element_located((By.CSS_SELECTOR, '[data-test="sustainability"]')))
+                    sustainability_section.click()
 
-                compensation_price = WebDriverWait(driver, 20).until(EC.presence_of_element_located(
-                    (By.XPATH, '//td[contains(text(), "Compensation amount")]/following-sibling::td'))).text.strip()
-                compensation_price = compensation_price.split("CHF ")[1].replace("’", "")
-                compensation_price = float(compensation_price)
+                    compensation_price = WebDriverWait(driver, 10).until(EC.presence_of_element_located(
+                        (By.XPATH, '//td[contains(text(), "Compensation amount")]/following-sibling::td'))).text.strip()
+                    compensation_price = compensation_price.split("CHF ")[1].replace("’", "")
+                    compensation_price = float(compensation_price)
 
-                emission = WebDriverWait(driver, 20).until(
-                    EC.presence_of_element_located((By.XPATH, '//td[contains(text(), "CO₂-Emission")]/following-sibling::td'))).text.strip()
-                emission = emission.split("kg")[0].replace("’", "")
-                emission = float(emission)
+                    emission = WebDriverWait(driver, 10).until(
+                        EC.presence_of_element_located((By.XPATH, '//td[contains(text(), "CO₂-Emission")]/following-sibling::td'))).text.strip()
+                    emission = emission.split("kg")[0].replace("’", "")
+                    emission = float(emission)
 
-            except TimeoutException:
-                logging.info(f"{url} has no sustainability section")
-                continue
+                except TimeoutException:
+                    print(f"{url} has no sustainability section")
+                    continue
 
-            finally:
-                driver.close()
+                finally:
+                    driver.close()
 
-            product = ProductItem(name=name,
-                                  price=price,
-                                  category=category,
-                                  weight=weight,
-                                  emission=emission,
-                                  compensation_price=compensation_price)
-            products.append(asdict(product))
+                product = ProductItem(name=name,
+                                      price=price,
+                                      category=category,
+                                      weight=weight,
+                                      emission=emission,
+                                      compensation_price=compensation_price)
+                products.append(asdict(product))
 
-            logging.info(asdict(product))
+                print(asdict(product))
 
         products_df = pd.DataFrame(products)
 
