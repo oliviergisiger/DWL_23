@@ -17,7 +17,7 @@ from product_scraper.domain import ProductItem
 from dataclasses import asdict
 
 
-class DigitecDayDealScraper(Scraper):
+class GalaxusDayDealScraper(Scraper):
 
     def __init__(self, url):
         self.url = url
@@ -45,8 +45,8 @@ class DigitecDayDealScraper(Scraper):
         for article in articles:
 
             try:
-                href = article.find('a', class_='sc-qlvix8-0 dgECEw')['href']
-                urls.append(f"https://www.digitec.ch{href}")
+                href = article.find('a', class_='sc-qlvix8-0 kLVcrw')['href']
+                urls.append(f"https://www.galaxus.ch{href}")
             except TypeError:
                 continue
 
@@ -68,8 +68,9 @@ class DigitecDayDealScraper(Scraper):
             price = float(soup.find('div', class_='sc-18ppxou-1 gwNBaL').text.split('.')[0])
             # Narrow down navigation section to get category
             navigation = soup.find('ol', class_='sc-4cfuhz-2 ipoVcw')
-            navigation_parts = navigation.find_all('li', class_='sc-4cfuhz-3 iIgemP')
+            navigation_parts = navigation.find_all('li', class_='sc-4cfuhz-3 ftxNPU')
             category = [subcategory.text for subcategory in navigation_parts][-2]
+            print(category)
 
             # Use Selenium to scrape emission information
             options = ChromeOptions()
@@ -94,7 +95,7 @@ class DigitecDayDealScraper(Scraper):
             # Launch the browser
             #driver = webdriver.Chrome('chromedriver', options=options)
             # Docker driver
-            with webdriver.Remote("http://172.18.0.4:4444/wd/hub", options=options) as driver:
+            with webdriver.Remote("http://172.19.0.4:4444/wd/hub", options=options) as driver:
 
                 # Changing the property of the navigator value for webdriver to undefined
                 driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
@@ -168,6 +169,6 @@ class DigitecDayDealScraper(Scraper):
 
 
 if __name__ == '__main__':
-    url = 'https://www.digitec.ch/en/daily-deal'
-    day_deals = DigitecDayDealScraper(url)
+    url = 'https://www.galaxus.ch/en/daily-deal'
+    day_deals = GalaxusDayDealScraper(url)
     day_deals.get_product_info_df()

@@ -67,7 +67,7 @@ class GalaxusDayDealScraper(Scraper):
                 print(f"{e} {url} has no price.")
             # Narrow down navigation section to get category
             navigation = soup.find('ol', class_='sc-4cfuhz-2 ipoVcw')
-            navigation_parts = navigation.find_all('li', class_='sc-4cfuhz-3 ftxNPU')
+            navigation_parts = navigation.find_all('li', class_='sc-4cfuhz-3 iIgemP')
             category = [subcategory.text for subcategory in navigation_parts][-2]
 
             time.sleep(random.randint(4, 6))

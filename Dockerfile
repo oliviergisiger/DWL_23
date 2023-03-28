@@ -9,3 +9,5 @@ RUN pip install selenium && \
     pip install bs4 && \
     pip install lxml && \
     pip install selenium-stealth
+
+USER airflow
