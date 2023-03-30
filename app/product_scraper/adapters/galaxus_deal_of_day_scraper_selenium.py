@@ -94,7 +94,7 @@ class GalaxusDayDealScraper(Scraper):
             # Launch the browser
             #driver = webdriver.Chrome('chromedriver', options=options)
             # Docker driver
-            with webdriver.Remote("http://172.19.0.4:4444/wd/hub", options=options) as driver:
+            with webdriver.Remote("dwl_23_selenium_1:4444/wd/hub", options=options) as driver:
 
                 # Changing the property of the navigator value for webdriver to undefined
                 driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
