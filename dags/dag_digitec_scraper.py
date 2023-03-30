@@ -18,9 +18,10 @@ def build_sync_dag(dag_configs=None):
     with DAG(
         dag_id='scrape_digitec_data',
         description='scrapes daily deals from digitec',
-        schedule='0 12 * * *',
-        start_date=datetime(2023, 3, 24),
-        end_date=None
+        schedule='15 12 * * *',
+        start_date=datetime(2023, 3, 29),
+        end_date=None,
+        catchup=False
     ) as dag:
         start = EmptyOperator(
             task_id='start'
