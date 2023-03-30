@@ -6,8 +6,8 @@ from product_scraper.adapters.digitec_deal_of_day_scraper_selenium import Digite
 from airflow.models import Variable
 
 def _scrape_digitec_data(execution_date):
-    source = DigitecDayDealScraper('https://www.digitec.ch/en/daily-deal')
-    print(source)
+    day_deals = DigitecDayDealScraper('https://www.digitec.ch/en/daily-deal')
+    day_deals.get_product_info_df()
 
     # to be used later as an xcom
     return str(execution_date)

@@ -291,5 +291,10 @@ services:
 #    minio:
 #        driver: local
 
+  selenium:
+    image: seleniarm/standalone-chromium:latest
+    ports:
+      - 4444:4444
+
 volumes:
   postgres-db-volume:

@@ -3,3 +3,10 @@ ENV PYTHONPATH="${PYTHONPATH}:/opt/airflow/app"
 
 COPY Pipfile .
 COPY Pipfile.lock .
+
+USER airflow
+RUN pip install selenium && \
+    pip install bs4 && \
+    pip install lxml
+
+USER airflow
