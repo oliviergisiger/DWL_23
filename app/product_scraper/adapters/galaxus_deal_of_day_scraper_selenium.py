@@ -11,7 +11,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
-from selenium_stealth import stealth
 from product_scraper.port.sources import Scraper
 from product_scraper.domain import ProductItem
 from dataclasses import asdict
@@ -99,16 +98,6 @@ class GalaxusDayDealScraper(Scraper):
 
                 # Changing the property of the navigator value for webdriver to undefined
                 driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
-
-                # Stealth selenium
-                # stealth(driver,
-                #         languages=["en-US", "en"],
-                #         vendor="Google Inc.",
-                #         platform="Win32",
-                #         webgl_vendor="Intel Inc.",
-                #         renderer="Intel Iris OpenGL Engine",
-                #         fix_hairline=True,
-                #         )
 
                 # Navigate to the URL
                 driver.get(url)
