@@ -20,7 +20,8 @@ def build_sync_dag(dag_configs=None):
         description='scrapes daily deals from galaxus',
         schedule='0 12 * * *',
         start_date=datetime(2023, 3, 24),
-        end_date=None
+        end_date=None,
+        catchup=False
     ) as dag:
         start = EmptyOperator(
             task_id='start'

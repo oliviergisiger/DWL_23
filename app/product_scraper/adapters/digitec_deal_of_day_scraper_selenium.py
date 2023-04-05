@@ -44,10 +44,11 @@ class DigitecDayDealScraper(Scraper):
         for article in articles:
 
             try:
-                href = article.find('a', class_='sc-qlvix8-0 dgECEw')['href']
+                href = article.find('a', class_='sc-qlvix8-0 kQthWr')['href']
                 urls.append(f"https://www.digitec.ch{href}")
             except TypeError:
                 continue
+
 
         return urls
 
@@ -63,11 +64,11 @@ class DigitecDayDealScraper(Scraper):
             r = requests.get(url)
             soup = BeautifulSoup(r.content, 'lxml')
 
-            name = soup.find('h1', class_='sc-12r9jwk-0 hcjJEJ').text
-            price = float(soup.find('div', class_='sc-18ppxou-1 gwNBaL').text.split('.')[0])
+            name = soup.find('h1', class_='sc-12r9jwk-0 cJkTme').text
+            price = float(soup.find('div', class_='sc-18ppxou-1 eEeWeQ').text.split('.')[0])
             # Narrow down navigation section to get category
-            navigation = soup.find('ol', class_='sc-4cfuhz-2 ipoVcw')
-            navigation_parts = navigation.find_all('li', class_='sc-4cfuhz-3 iIgemP')
+            navigation = soup.find('ol', class_='sc-4cfuhz-2 gxutTT')
+            navigation_parts = navigation.find_all('li', class_='sc-4cfuhz-3 fliurc')
             category = [subcategory.text for subcategory in navigation_parts][-2]
 
             # Use Selenium to scrape emission information
