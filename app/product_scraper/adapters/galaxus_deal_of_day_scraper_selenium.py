@@ -11,12 +11,12 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
-from product_scraper.port.sources import Scraper
+from product_scraper.port.sources import ScraperSource
 from product_scraper.domain import ProductItem
 from dataclasses import asdict
 
 
-class GalaxusDayDealScraper(Scraper):
+class GalaxusDayDealScraper(ScraperSource):
 
     def __init__(self, url):
         self.url = url
@@ -27,7 +27,6 @@ class GalaxusDayDealScraper(Scraper):
         Return pd.DataFrame with product information from deals of the day.
         """
         product_info_df = self._get_product_info()
-        print(product_info_df)
         return product_info_df
 
     def _get_product_links(self, url: str) -> List[str]:
@@ -92,7 +91,7 @@ class GalaxusDayDealScraper(Scraper):
             options.add_argument(f'user-agent={user_agent}')
 
             # Launch the browser
-            #driver = webdriver.Chrome('chromedriver', options=options)
+            # with webdriver.Chrome('chromedriver', options=options) as driver:
             # Docker driver
             remote_webdriver = 'dwl_23_selenium_1'
             with webdriver.Remote(f'{remote_webdriver}:4444/wd/hub', options=options) as driver:
@@ -163,4 +162,5 @@ class GalaxusDayDealScraper(Scraper):
 if __name__ == '__main__':
     url = 'https://www.galaxus.ch/en/daily-deal'
     day_deals = GalaxusDayDealScraper(url)
-    day_deals.get_product_info_df()
+    df = day_deals.get_product_info_df()
+    df.to_csv('galaxus_sample_data.csv', index=False)
