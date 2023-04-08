@@ -7,7 +7,7 @@ from api_sync.usecases.sync_api_usecase import SyncAPI
 from api_sync.adapters.sync_api_source import APISyncRequestSourceRaw
 from api_sync.adapters.sync_api_sink import APISyncRequestSinkRaw
 from airflow.models import Variable
-from dags.dag_utils_old import update_connection, get_aws_session_credentials
+from dags.dag_utils import update_connection, get_aws_session_credentials
 
 # dynamic environment settings
 ENVIRONMENT_VAR = "ENVIRONMENT"
