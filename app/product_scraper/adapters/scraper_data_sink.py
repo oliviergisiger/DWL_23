@@ -1,3 +1,5 @@
+import logging
+import json
 import pandas as pd
 from datetime import date
 from airflow.hooks.S3_hook import S3Hook
@@ -11,13 +13,15 @@ class ScraperDataSink(ScraperSink):
         self._connection = connection
         self._filename = filename
 
-    def write_to_s3(self, execution_data: date):
-        filename = f'{self._filename}_{execution_data}.csv'
-        filepath = f"s3://s3-raw-data-dwl23/{filename}"
+    def write_to_s3(self, execution_date: date):
+        filename = f'{self._filename}_{execution_date.date()}.json'
 
-        self.data.to_csv(filepath, index=False,
-                         storage_options={
-                             "key": AWS_ACCESS_KEY_ID,
-                             "secret": AWS_SECRET_ACCESS_KEY,
-                             "token": AWS_SESSION_TOKEN
-                         })
+        bytes_json = json.dumps(self.data.to_json()).encode('utf-8')
+
+        s3 = S3Hook(self._connection)
+        s3.load_bytes(bytes_data=bytes_json,
+                      key=filename,
+                      bucket_name="s3-raw-data-dwl23",
+                      replace=True)
+
+        logging.info(f'written {len(self.data)} to file: {filename}')
