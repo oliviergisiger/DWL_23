@@ -7,7 +7,7 @@ from airflow.operators.empty import EmptyOperator
 from product_scraper.adapters.digitec_deal_of_day_scraper_selenium import DigitecDayDealScraper
 from product_scraper.adapters.scraper_data_sink import ScraperDataSink
 from airflow.models import Variable
-from dags.dag_utils import update_connection, get_aws_session_credentials
+from dags.dag_utils_old import update_connection, get_aws_session_credentials
 
 # dynamic environment settings
 ENVIRONMENT_VAR = "ENVIRONMENT"

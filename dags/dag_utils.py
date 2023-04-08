@@ -34,7 +34,7 @@ def get_aws_session_credentials(expiration_time):
 
     return {
         "aws_access_key_id": aws_key,
-        "aws_access_key_id": aws_secret,
+        "aws_secret_access_key": aws_secret,
         "aws_session_token": aws_session
     }
 
