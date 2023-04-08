@@ -69,8 +69,8 @@ def build_sync_dag(dag_configs=None):
         dag_id='sync_weather_data',
         description='requests data from srg meteo api, writes dict to json ',
         schedule_interval='0 12 * * *',
-        start_date=START_DATE,
-        end_date=END_DATE
+        start_date=datetime(2023, 3, 7),
+        end_date=None
     ) as dag:
         start = DummyOperator(
             task_id='start'
