@@ -11,12 +11,12 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
-from product_scraper.port.sources import Scraper
+from product_scraper.port.sources import ScraperSource
 from product_scraper.domain import ProductItem
 from dataclasses import asdict
 
 
-class DigitecDayDealScraper(Scraper):
+class DigitecDayDealScraper(ScraperSource):
 
     def __init__(self, url):
         self.url = url
@@ -92,12 +92,12 @@ class DigitecDayDealScraper(Scraper):
             options.add_argument(f'user-agent={user_agent}')
 
             # Launch the browser
-            #driver = webdriver.Chrome('chromedriver', options=options)
+            # with webdriver.Chrome('chromedriver', options=options) as driver:
             # Docker driver
             remote_webdriver = 'dwl_23_selenium_1'
             with webdriver.Remote(f'{remote_webdriver}:4444/wd/hub', options=options) as driver:
 
-                logging.info(f'using {remote_webdriver} as host with port 4444')
+                #logging.info(f'using {remote_webdriver} as host with port 4444')
 
                 # Changing the property of the navigator value for webdriver to undefined
                 driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
@@ -163,4 +163,5 @@ class DigitecDayDealScraper(Scraper):
 if __name__ == '__main__':
     url = 'https://www.digitec.ch/en/daily-deal'
     day_deals = DigitecDayDealScraper(url)
-    day_deals.get_product_info_df()
+    df = day_deals.get_product_info_df()
+    df.to_csv('digitec_sample_data.csv', index=False)
