@@ -1,3 +1,5 @@
+from configurations.configs import START_DATE, END_DATE
+
 from datetime import datetime
 from time import time
 from airflow import DAG
@@ -50,6 +52,8 @@ def _sync_weather_data(execution_date):
 
     source = APISyncRequestSourceRaw(url=API_CONFIGS.get('url'),
                                      headers=API_CONFIGS.get('headers'))
+
+    fake_source = {'col1': [1, 2, 3, 4, 5], 'col2': [5, 4, 3, 2, 1]}
     sink = APISyncRequestSinkRaw(filetype=FILETYPE_CONFIGS.get('filetype'),
                                  connection=S3_CONNECTION)
     usecase = SyncAPI(source=source, sink=sink)
@@ -65,8 +69,8 @@ def build_sync_dag(dag_configs=None):
         dag_id='sync_weather_data',
         description='requests data from srg meteo api, writes dict to json ',
         schedule_interval='0 12 * * *',
-        start_date=datetime(2023, 3, 7),
-        end_date=None
+        start_date=START_DATE,
+        end_date=END_DATE
     ) as dag:
         start = DummyOperator(
             task_id='start'
