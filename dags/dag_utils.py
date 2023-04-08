@@ -46,5 +46,4 @@ def update_connection(connection_id: str, _extra):
 
 
 if __name__ == '__main__':
-    #
     pass
