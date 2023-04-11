@@ -11,7 +11,7 @@ And convert actual weather information into information about energy production 
 
 ## Minio Local Dev Setup
 
-- Create Object in minio (buckets > create new bucket with name `s3-raw-data-dwl23`)
+- Create Object in minio (buckets > create new bucket with name `s3-raw-data-dwl23` --> Name needs to be `bucket_name` in `s3.load_bytes()`)
 - Create minio access Key (save credentials locally to have them ready for later)
 - In Airflow:
   - Variables (new variable): 
