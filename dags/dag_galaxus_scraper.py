@@ -3,6 +3,7 @@ from datetime import datetime
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.operators.empty import EmptyOperator
+from product_scraper.usecases.scraper_usecase import ScrapeProducts
 from product_scraper.adapters.galaxus_deal_of_day_scraper_selenium import GalaxusDayDealScraper
 from product_scraper.adapters.scraper_data_sink import ScraperDataSink
 from airflow.models import Variable
@@ -13,7 +14,7 @@ ENVIRONMENT_VAR = "ENVIRONMENT"
 ENVIRONMENT = Variable.get(ENVIRONMENT_VAR, default_var='LOCAL_DEV')
 
 # runtime configs
-RUNTIME_CONFIG_VAR = "scrape_digitec_data_runtime_config"
+RUNTIME_CONFIG_VAR = "scrape_galaxus_data_runtime_config"
 RUNTIME_CONFIG = Variable.get(RUNTIME_CONFIG_VAR,
                               deserialize_json=True,
                               default_var={})
@@ -27,12 +28,13 @@ def _scrape_galaxus_data(execution_date):
         aws_session_credentials = get_aws_session_credentials(time())
         update_connection(S3_CONNECTION, _extra=aws_session_credentials)
 
-    day_deals = GalaxusDayDealScraper('https://www.galaxus.ch/en/daily-deal')
-    day_deals_df = day_deals.get_product_info_df()
+    source = GalaxusDayDealScraper('https://www.galaxus.ch/en/daily-deal')
 
     filename = "galaxus_day_deals"
-    sink = ScraperDataSink(day_deals_df, S3_CONNECTION, filename)
-    sink.write_to_s3(execution_date)
+    sink = ScraperDataSink(S3_CONNECTION, filename)
+    
+    usecase = ScrapeProducts(source=source, sink=sink)
+    usecase.execute_usecase(execution_date=execution_date)
 
     # to be used later as an xcom
     return str(execution_date)

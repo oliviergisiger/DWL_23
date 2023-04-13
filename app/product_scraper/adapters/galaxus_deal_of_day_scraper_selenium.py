@@ -68,7 +68,6 @@ class GalaxusDayDealScraper(ScraperSource):
             navigation = soup.find('ol', class_='sc-4cfuhz-2 gxutTT')
             navigation_parts = navigation.find_all('li', class_='sc-4cfuhz-3 izQKNX')
             category = [subcategory.text for subcategory in navigation_parts][-2]
-            print(category)
 
             # Use Selenium to scrape emission information
             options = ChromeOptions()
@@ -95,8 +94,6 @@ class GalaxusDayDealScraper(ScraperSource):
             # Docker driver
             remote_webdriver = 'dwl_23_selenium_1'
             with webdriver.Remote(f'{remote_webdriver}:4444/wd/hub', options=options) as driver:
-
-                logging.info(f'using {remote_webdriver} as host with port 4444')
 
                 # Changing the property of the navigator value for webdriver to undefined
                 driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
