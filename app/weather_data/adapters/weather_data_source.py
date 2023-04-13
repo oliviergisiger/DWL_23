@@ -1,7 +1,7 @@
 from weather_data.ports.weather_data import WeatherDataSource
 from airflow.hooks.S3_hook import S3Hook
+import pandas as pd
 
-BUCKET = 's3-raw-data-dwl23'
 
 class WeatherDataSourceAdapter(WeatherDataSource):
     """
@@ -11,16 +11,13 @@ class WeatherDataSourceAdapter(WeatherDataSource):
     def __init__(self, connection):
         self._connection = connection
 
-
-
-    def read_source(self, execution_date, filetype): # filestorage is equivalent to s3
+    def read_source(self, execution_date, filetype, bucket): # filestorage is equivalent to s3
         source_file_system = S3Hook(self._connection)
         filename = f'{filetype}_{execution_date}.json'
-        bucket = BUCKET
 
-        # source_file_system.check_for_key(key=filename, bucket_name=bucket)
+        data = source_file_system.read_key(key=filename, bucket_name=bucket)
 
-        return source_file_system.check_for_key(key=filename, bucket_name=bucket)
+        return data
 
 
 
