@@ -8,6 +8,7 @@ from airflow.operators.dummy_operator import DummyOperator
 from api_sync.usecases.sync_api_usecase import SyncAPI
 from api_sync.adapters.sync_api_source import APISyncRequestSourceRaw
 from api_sync.adapters.sync_api_sink import APISyncRequestSinkRaw
+from api_sync import SRGToken
 from airflow.models import Variable
 from dags.dag_utils import update_connection, get_aws_session_credentials
 
@@ -21,25 +22,24 @@ RUNTIME_CONFIG = Variable.get(RUNTIME_CONFIG_VAR,
                               deserialize_json=True,
                               default_var={})
 
-ACCESS_TOKEN = RUNTIME_CONFIG.get("access_token")
+
 
 
 # configs
-FILETYPE_CONFIGS = {
-    'filetype': 'weather_data_bern'
-}
-
-API_CONFIGS = {
-    'url': 'https://api.srgssr.ch/srf-meteo/forecast/46.9490,7.3871?type=hour',
-    'headers': {
-        'authorization': f'Bearer {ACCESS_TOKEN}',  # g2UzkG9CHifRew5jetKxk3NNvoWt
-        'accept': 'application/json'
-    }
-}
-
+FILETYPE_CONFIGS = {'filetype': 'weather_data_bern'}
 S3_CONNECTION = 'S3_DEVELOPMENT' if ENVIRONMENT == 'LOCAL_DEV' else 'S3_PRODUCTION'
 
 
+def _get_api_configs():
+    access_token = SRGToken().oauth_token
+    api_configs = {
+        'url': 'https://api.srgssr.ch/srf-meteo/forecast/46.9490,7.3871?type=hour',
+        'headers': {
+            'authorization': f'Bearer {access_token}',  # g2UzkG9CHifRew5jetKxk3NNvoWt
+            'accept': 'application/json'
+        }
+    }
+    return api_configs
 
 
 
@@ -50,10 +50,11 @@ def _sync_weather_data(execution_date):
         aws_session_credentials = get_aws_session_credentials(time())
         update_connection(S3_CONNECTION, _extra=aws_session_credentials)
 
-    source = APISyncRequestSourceRaw(url=API_CONFIGS.get('url'),
-                                     headers=API_CONFIGS.get('headers'))
+    api_configs = _get_api_configs()
 
-    fake_source = {'col1': [1, 2, 3, 4, 5], 'col2': [5, 4, 3, 2, 1]}
+    source = APISyncRequestSourceRaw(url=api_configs.get('url'),
+                                     headers=api_configs.get('headers'))
+
     sink = APISyncRequestSinkRaw(filetype=FILETYPE_CONFIGS.get('filetype'),
                                  connection=S3_CONNECTION)
     usecase = SyncAPI(source=source, sink=sink)
