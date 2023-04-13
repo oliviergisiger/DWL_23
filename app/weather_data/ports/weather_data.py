@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 class WeatherDataSource(ABC):
 
     @abstractmethod
-    def source(self):
+    def read_source(self, execution_date, filetype):
         pass
 
 
