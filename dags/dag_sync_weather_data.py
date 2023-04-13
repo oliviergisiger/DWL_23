@@ -31,15 +31,15 @@ S3_CONNECTION = 'S3_DEVELOPMENT' if ENVIRONMENT == 'LOCAL_DEV' else 'S3_PRODUCTI
 
 
 def _get_api_configs():
-    ACCESS_TOKEN = SRGToken().oauth_token
-    API_CONFIGS = {
+    access_token = SRGToken().oauth_token
+    api_configs = {
         'url': 'https://api.srgssr.ch/srf-meteo/forecast/46.9490,7.3871?type=hour',
         'headers': {
-            'authorization': f'Bearer {ACCESS_TOKEN}',  # g2UzkG9CHifRew5jetKxk3NNvoWt
+            'authorization': f'Bearer {access_token}',  # g2UzkG9CHifRew5jetKxk3NNvoWt
             'accept': 'application/json'
         }
     }
-    return API_CONFIGS
+    return api_configs
 
 
 
@@ -51,8 +51,6 @@ def _sync_weather_data(execution_date):
         update_connection(S3_CONNECTION, _extra=aws_session_credentials)
 
     api_configs = _get_api_configs()
-    print("*********")
-    print(api_configs)
 
     source = APISyncRequestSourceRaw(url=api_configs.get('url'),
                                      headers=api_configs.get('headers'))
