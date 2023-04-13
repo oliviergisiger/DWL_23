@@ -65,6 +65,7 @@ x-airflow-common:
     - ./logs:/opt/airflow/logs
     - ./plugins:/opt/airflow/plugins
     - ./minio:/data/minio
+    - ./dwl-postgres:/data/postgres
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on
@@ -289,9 +290,17 @@ services:
     volumes:
       - ./minio:/data/minio
     command: minio server /data/minio --console-address ":9090"
-# volumes:
-#    minio:
-#        driver: local
+
+  dwl-postgres:
+    image: postgres:12.4
+    volumes:
+      - ./dwl-postgres:/data/postgres
+    ports:
+      - 5433:5432
+    logging:
+      options:
+        max-size: 10m
+        max-file: "3"
 
   selenium:
     container_name: dwl_23_selenium_1
