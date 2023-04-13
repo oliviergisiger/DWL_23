@@ -297,6 +297,9 @@ services:
       - ./dwl-postgres:/data/postgres
     ports:
       - 5433:5432
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
     logging:
       options:
         max-size: 10m
