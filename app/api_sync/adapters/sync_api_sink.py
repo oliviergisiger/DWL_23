@@ -1,4 +1,5 @@
 import logging
+from sys import getsizeof
 from datetime import date
 from typing import Dict
 import json
@@ -23,7 +24,7 @@ class APISyncRequestSinkRaw(APISyncRequestSink):
                       bucket_name="s3-raw-data-dwl23",
                       replace=True)
 
-        logging.info(f'written {len(data)} to file: {filename}')
+        logging.info(f'written {getsizeof(data)} bytes to file: {filename}')
 
 
     @staticmethod
