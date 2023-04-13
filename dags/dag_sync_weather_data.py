@@ -8,6 +8,7 @@ from airflow.operators.dummy_operator import DummyOperator
 from api_sync.usecases.sync_api_usecase import SyncAPI
 from api_sync.adapters.sync_api_source import APISyncRequestSourceRaw
 from api_sync.adapters.sync_api_sink import APISyncRequestSinkRaw
+from api_sync import SRGToken
 from airflow.models import Variable
 from dags.dag_utils import update_connection, get_aws_session_credentials
 
@@ -21,7 +22,7 @@ RUNTIME_CONFIG = Variable.get(RUNTIME_CONFIG_VAR,
                               deserialize_json=True,
                               default_var={})
 
-ACCESS_TOKEN = RUNTIME_CONFIG.get("access_token")
+ACCESS_TOKEN = SRGToken().oauth_token
 
 
 # configs
@@ -53,7 +54,6 @@ def _sync_weather_data(execution_date):
     source = APISyncRequestSourceRaw(url=API_CONFIGS.get('url'),
                                      headers=API_CONFIGS.get('headers'))
 
-    fake_source = {'col1': [1, 2, 3, 4, 5], 'col2': [5, 4, 3, 2, 1]}
     sink = APISyncRequestSinkRaw(filetype=FILETYPE_CONFIGS.get('filetype'),
                                  connection=S3_CONNECTION)
     usecase = SyncAPI(source=source, sink=sink)
