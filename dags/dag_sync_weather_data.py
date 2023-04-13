@@ -22,25 +22,24 @@ RUNTIME_CONFIG = Variable.get(RUNTIME_CONFIG_VAR,
                               deserialize_json=True,
                               default_var={})
 
-ACCESS_TOKEN = SRGToken().oauth_token
+
 
 
 # configs
-FILETYPE_CONFIGS = {
-    'filetype': 'weather_data_bern'
-}
-
-API_CONFIGS = {
-    'url': 'https://api.srgssr.ch/srf-meteo/forecast/46.9490,7.3871?type=hour',
-    'headers': {
-        'authorization': f'Bearer {ACCESS_TOKEN}',  # g2UzkG9CHifRew5jetKxk3NNvoWt
-        'accept': 'application/json'
-    }
-}
-
+FILETYPE_CONFIGS = {'filetype': 'weather_data_bern'}
 S3_CONNECTION = 'S3_DEVELOPMENT' if ENVIRONMENT == 'LOCAL_DEV' else 'S3_PRODUCTION'
 
 
+def _get_api_configs():
+    ACCESS_TOKEN = SRGToken().oauth_token
+    API_CONFIGS = {
+        'url': 'https://api.srgssr.ch/srf-meteo/forecast/46.9490,7.3871?type=hour',
+        'headers': {
+            'authorization': f'Bearer {ACCESS_TOKEN}',  # g2UzkG9CHifRew5jetKxk3NNvoWt
+            'accept': 'application/json'
+        }
+    }
+    return API_CONFIGS
 
 
 
@@ -51,8 +50,12 @@ def _sync_weather_data(execution_date):
         aws_session_credentials = get_aws_session_credentials(time())
         update_connection(S3_CONNECTION, _extra=aws_session_credentials)
 
-    source = APISyncRequestSourceRaw(url=API_CONFIGS.get('url'),
-                                     headers=API_CONFIGS.get('headers'))
+    api_configs = _get_api_configs()
+    print("*********")
+    print(api_configs)
+
+    source = APISyncRequestSourceRaw(url=api_configs.get('url'),
+                                     headers=api_configs.get('headers'))
 
     sink = APISyncRequestSinkRaw(filetype=FILETYPE_CONFIGS.get('filetype'),
                                  connection=S3_CONNECTION)
