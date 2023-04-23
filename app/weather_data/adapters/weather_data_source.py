@@ -12,9 +12,9 @@ class WeatherDataSourceAdapter(WeatherDataSource):
         self._connection = connection
         self._bucket = bucket
 
-    def read_source(self, execution_date, filetype):  # filestorage is equivalent to s3
+    def read_source(self, execution_date):  # filestorage is equivalent to s3
         source_file_system = S3Hook(self._connection)
-        filename = f'{filetype}_{execution_date}.json'
+        filename = f'weather_data_bern_{execution_date.date()}.json'
 
         data = source_file_system.read_key(key=filename, bucket_name=self._bucket)
 

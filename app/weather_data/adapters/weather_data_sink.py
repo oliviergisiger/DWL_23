@@ -2,6 +2,7 @@ from weather_data.ports.weather_data import WeatherDataSink
 import ast
 import pandas as pd
 from airflow.providers.postgres.hooks.postgres import PostgresHook
+from sqlalchemy.types import DateTime
 
 from weather_data.adapters import WEATHER_DATA_CONFIGS as cfg
 SQL = """CREATE TABLE weather_data (
@@ -34,12 +35,19 @@ class WeatherDataSinkAdapter(WeatherDataSink):
         self._db_config = db_config
 
 
-    def export(self):
+    def export(self, data):
         hook = PostgresHook(postgres_conn_id=self._connection, schema=self._db_config)
+        engine = hook.get_sqlalchemy_engine()
         conn = hook.get_conn()
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM weather_data")
-        print([i for i in cursor])
+        df = self._generate_df(data=data)
+        df.to_sql(name='weather_data',
+                  con=engine,
+                  index=False,
+                  if_exists='append',
+                  index_label='local_date_time',
+                  dtype={'local_date_time': DateTime()},
+                  method='multi',
+                  )
 
 
     def _generate_df(self, data):
@@ -50,6 +58,7 @@ class WeatherDataSinkAdapter(WeatherDataSink):
         # add rows
         df = pd.DataFrame(content)
         df['geo'] = meta
+        df = df.drop('cur_color', axis=1)
 
         return df
 

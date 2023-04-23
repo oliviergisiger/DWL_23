@@ -11,20 +11,22 @@ CONNECTION = 'S3_DEVELOPMENT'
 BUCKET = 's3-raw-data-dwl23'
 
 
-
 def _check_file(execution_date, filetype, bucket):
     source_file_system = S3Hook(CONNECTION)
-    filename = f'{filetype}_{execution_date}.json'
+    filename = f'{filetype}_{execution_date.date()}.json'
+    print(filename)
     return source_file_system.check_for_key(key=filename, bucket_name=bucket)
 
 
-def _check_if_file_exists():
-    execution_date = '2023-03-25'
+
+def _check_if_file_exists(execution_date):
     filetype = 'weather_data_bern'
     bucket = BUCKET
     _check_file(execution_date=execution_date,
                 filetype=filetype,
                 bucket=bucket)
+
+
 
 
 def _load_file_from_storage(execution_date):
@@ -35,16 +37,9 @@ def _load_file_from_storage(execution_date):
     source = WeatherDataSourceAdapter(CONNECTION, BUCKET)
     sink = WeatherDataSinkAdapter(connection='RDS_DEVELOPMENT', db_config='dwl-23')
 
-    #usecase = DeliverWeatherData(source=source,
-    #                             sink=sink)
-
-    #usecase.execute_usecase(execution_date=execution_date)
-    #file = source.read_source(execution_date, filetype, BUCKET)
-    #df = sink._generate_df(file)
-
-    #print(df.head())
-
-    sink.export()
+    usecase = DeliverWeatherData(source=source,
+                                 sink=sink)
+    usecase.execute_usecase(execution_date)
 
 
 

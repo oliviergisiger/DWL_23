@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 class WeatherDataSource(ABC):
 
     @abstractmethod
-    def read_source(self, execution_date, filetype):
+    def read_source(self, execution_date):
         pass
 
 
@@ -14,5 +14,5 @@ class WeatherDataSource(ABC):
 class WeatherDataSink(ABC):
 
     @abstractmethod
-    def export(self):
+    def export(self, data):
         pass

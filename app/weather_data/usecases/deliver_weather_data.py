@@ -13,8 +13,8 @@ class DeliverWeatherData:
         self._sink = sink
 
     def execute_usecase(self, execution_date):
-        #data = self._source.read_source(execution_date, filetype='weather_data_bern')
-        self._sink.export()
+        data = self._source.read_source(execution_date)
+        self._sink.export(data)
 
 
 
