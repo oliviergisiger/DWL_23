@@ -1,7 +1,8 @@
 
 
-SRG_METEO_API_CONFIGS = {
-    'level': [['forecast'],['hour']],
+WEATHER_DATA_CONFIGS = {
+    'content': ['forecast', 'hour'],
+    'meta': ['geolocation', 'id'],
     'index_column': 'local_date_time',
     'columns': [
         'local_date_time',
@@ -22,3 +23,4 @@ SRG_METEO_API_CONFIGS = {
         'PRESSURE_HPA'
     ]
 }
+

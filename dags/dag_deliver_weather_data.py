@@ -4,6 +4,8 @@ from airflow.operators.python import PythonOperator
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.hooks.S3_hook import S3Hook
 from weather_data.adapters.weather_data_source import WeatherDataSourceAdapter
+from weather_data.adapters.weather_data_sink import WeatherDataSinkAdapter
+from weather_data.usecases.deliver_weather_data import DeliverWeatherData
 
 CONNECTION = 'S3_DEVELOPMENT'
 BUCKET = 's3-raw-data-dwl23'
@@ -25,17 +27,24 @@ def _check_if_file_exists():
                 bucket=bucket)
 
 
-def _load_file_from_storage():
+def _load_file_from_storage(execution_date):
 
-    execution_date = '2023-03-25'
+    #execution_date = '2023-03-25'
     filetype = 'weather_data_bern'
-    bucket = BUCKET
 
-    source = WeatherDataSourceAdapter(CONNECTION)
+    source = WeatherDataSourceAdapter(CONNECTION, BUCKET)
+    sink = WeatherDataSinkAdapter(connection='RDS_DEVELOPMENT', db_config='dwl-23')
 
-    file = source.read_source(execution_date, filetype, bucket)
+    #usecase = DeliverWeatherData(source=source,
+    #                             sink=sink)
 
-    print(f'***********{file}')
+    #usecase.execute_usecase(execution_date=execution_date)
+    #file = source.read_source(execution_date, filetype, BUCKET)
+    #df = sink._generate_df(file)
+
+    #print(df.head())
+
+    sink.export()
 
 
 

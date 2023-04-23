@@ -7,6 +7,8 @@ name = "pypi"
 pandas = "*"
 playwright = "*"
 apache-airflow = {extras = ["amazon"], version = "*"}
+peewee = "*"
+apache-airflow-providers-postgres = {extras = ["amazon"], version = "*"}
 
 [dev-packages]
 
