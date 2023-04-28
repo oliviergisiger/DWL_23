@@ -1,28 +1,15 @@
+from base.configurations.db_config import DatabaseConfig
 from weather_data.ports.weather_data import WeatherDataSink
+from weather_data.capabilities.database_orm import WeatherDataTable
 import ast
 import pandas as pd
-from airflow.providers.postgres.hooks.postgres import PostgresHook
-from sqlalchemy.types import DateTime
+from sqlalchemy.types import DATETIME, INTEGER, FLOAT, VARCHAR
+from sqlalchemy import create_engine
+from sqlalchemy import MetaData, Column, Table
+from sqlalchemy.dialects.postgresql import insert
 
 from weather_data.adapters import WEATHER_DATA_CONFIGS as cfg
-SQL = """CREATE TABLE weather_data (
-            local_date_time         date,
-            TTT_C                   float8,
-            TTL_C                   float8,
-            TTH_C                   float8,
-            TTTFEEL_C               float8,
-            DEWPOINT_C              float8,
-            PROBPCP_PERCENT         float8,
-            RRR_MM                  float8,
-            RELHUM_PERCENT          float8,
-            FF_KMH                  float8,
-            FX_KMH                  float8,
-            DD_DEG                  float8,
-            SUN_MIN                 float8,
-            IRRADIANCE_WM2          float8,
-            FRESHSNOW_CM            float8,
-            PRESSURE_HPA            float8
-        ); """
+
 
 
 class WeatherDataSinkAdapter(WeatherDataSink):
@@ -30,24 +17,18 @@ class WeatherDataSinkAdapter(WeatherDataSink):
     should upload source object.data to rdbms --> either using peewee or similar
     should inherit from abstract class
     """
-    def __init__(self, connection, db_config):
-        self._connection = connection
+    def __init__(self, db_config: DatabaseConfig):
         self._db_config = db_config
 
 
     def export(self, data):
-        hook = PostgresHook(postgres_conn_id=self._connection, schema=self._db_config)
-        engine = hook.get_sqlalchemy_engine()
-        conn = hook.get_conn()
+
         df = self._generate_df(data=data)
-        df.to_sql(name='weather_data',
-                  con=engine,
-                  index=False,
-                  if_exists='append',
-                  index_label='local_date_time',
-                  dtype={'local_date_time': DateTime()},
-                  method='multi',
-                  )
+        print(df.head())
+        engine = create_engine(self._db_config.connection_string())
+
+
+
 
 
     def _generate_df(self, data):
@@ -61,7 +42,6 @@ class WeatherDataSinkAdapter(WeatherDataSink):
         df = df.drop('cur_color', axis=1)
 
         return df
-
 
 
 

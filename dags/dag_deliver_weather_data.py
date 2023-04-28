@@ -1,5 +1,7 @@
 from configurations.configs import START_DATE, END_DATE
+from base.configurations.db_config import DatabaseConfig
 from airflow.models import DAG
+from airflow.models import Variable
 from airflow.operators.python import PythonOperator
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.hooks.S3_hook import S3Hook
@@ -9,6 +11,21 @@ from weather_data.usecases.deliver_weather_data import DeliverWeatherData
 
 CONNECTION = 'S3_DEVELOPMENT'
 BUCKET = 's3-raw-data-dwl23'
+
+
+def _get_database():
+    db_config = Variable.get('DATABASE_CONFIG', deserialize_json=True)
+
+    database = DatabaseConfig(
+        hostname=db_config.get('hostname'),
+        port=db_config.get('port'),
+        user=db_config.get('user'),
+        password=db_config.get('password'),
+        db_name=db_config.get('database_name')
+    )
+
+    return database
+
 
 
 def _check_file(execution_date, filetype, bucket):
@@ -33,17 +50,14 @@ def _load_file_from_storage(execution_date):
 
     #execution_date = '2023-03-25'
     filetype = 'weather_data_bern'
+    database = _get_database()
 
     source = WeatherDataSourceAdapter(CONNECTION, BUCKET)
-    sink = WeatherDataSinkAdapter(connection='RDS_DEVELOPMENT', db_config='dwl-23')
+    sink = WeatherDataSinkAdapter(db_config=database)
 
     usecase = DeliverWeatherData(source=source,
                                  sink=sink)
     usecase.execute_usecase(execution_date)
-
-
-
-
 
 
 
