@@ -48,7 +48,7 @@ def _check_if_file_exists(execution_date):
 
 def _load_file_from_storage(execution_date):
 
-    #execution_date = '2023-03-25'
+
     filetype = 'weather_data_bern'
     database = _get_database()
 

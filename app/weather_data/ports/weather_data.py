@@ -14,5 +14,5 @@ class WeatherDataSource(ABC):
 class WeatherDataSink(ABC):
 
     @abstractmethod
-    def export(self, data):
+    def export(self, data, execution_date):
         pass

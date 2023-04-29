@@ -14,10 +14,7 @@ class DeliverWeatherData:
 
     def execute_usecase(self, execution_date):
         data = self._source.read_source(execution_date)
-        self._sink.export(data)
-
-
-
+        self._sink.export(data, execution_date)
 
 
 if __name__ == '__main__':
