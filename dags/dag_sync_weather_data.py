@@ -1,6 +1,5 @@
 from configurations.configs import START_DATE, END_DATE
-
-from datetime import datetime
+from datetime import datetime, date
 from time import time
 from airflow import DAG
 from airflow.operators.python import PythonOperator
@@ -15,6 +14,11 @@ from dags.dag_utils import update_connection, get_aws_session_credentials
 # dynamic environment settings
 ENVIRONMENT_VAR = "ENVIRONMENT"
 ENVIRONMENT = Variable.get(ENVIRONMENT_VAR, default_var='LOCAL_DEV')
+
+START_DATE = START_DATE if ENVIRONMENT == 'LOCAL_DEV' else date(2023, 4, 8)
+END_DATE = END_DATE if ENVIRONMENT == 'LOCAL_DEV' else None
+
+
 
 # runtime configs
 RUNTIME_CONFIG_VAR = "sync_weather_data_runtime_config"
