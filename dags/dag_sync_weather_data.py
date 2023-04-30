@@ -74,6 +74,7 @@ def build_sync_dag(dag_configs=None):
         dag_id='sync_weather_data',
         description='requests data from srg meteo api, writes dict to json ',
         schedule_interval='0 12 * * *',
+        catchup=False,
         start_date=START_DATE,
         end_date=END_DATE
     ) as dag:
