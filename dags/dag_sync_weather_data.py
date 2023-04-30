@@ -1,4 +1,4 @@
-from configurations.configs import START_DATE, END_DATE
+from configurations.configs import LOCAL_DEV, PRODUCTION
 from datetime import datetime, date
 from time import time
 from airflow import DAG
@@ -13,12 +13,10 @@ from dags.dag_utils import update_connection, get_aws_session_credentials
 
 # dynamic environment settings
 ENVIRONMENT_VAR = "ENVIRONMENT"
-ENVIRONMENT = Variable.get(ENVIRONMENT_VAR, default_var='LOCAL_DEV')
-
-START_DATE = START_DATE if ENVIRONMENT == 'LOCAL_DEV' else date(2023, 4, 8)
-END_DATE = END_DATE if ENVIRONMENT == 'LOCAL_DEV' else None
-
-
+ENVIRONMENT = LOCAL_DEV if Variable.get(ENVIRONMENT_VAR, default_var='LOCAL_DEV') == 'LOCAL_DEV' else PRODUCTION
+START_DATE = ENVIRONMENT.dag_start_date
+END_DATE = ENVIRONMENT.dag_end_data
+S3_CONNECTION = ENVIRONMENT.connections.get('S3')
 
 # runtime configs
 RUNTIME_CONFIG_VAR = "sync_weather_data_runtime_config"
@@ -26,12 +24,8 @@ RUNTIME_CONFIG = Variable.get(RUNTIME_CONFIG_VAR,
                               deserialize_json=True,
                               default_var={})
 
-
-
-
-# configs
+# static configs
 FILETYPE_CONFIGS = {'filetype': 'weather_data_bern'}
-S3_CONNECTION = 'S3_DEVELOPMENT' if ENVIRONMENT == 'LOCAL_DEV' else 'S3_PRODUCTION'
 
 
 def _get_api_configs():
@@ -50,7 +44,7 @@ def _get_api_configs():
 
 def _sync_weather_data(execution_date):
 
-    if ENVIRONMENT != 'LOCAL_DEV':
+    if ENVIRONMENT.environment != 'LOCAL_DEV':
         aws_session_credentials = get_aws_session_credentials(time())
         update_connection(S3_CONNECTION, _extra=aws_session_credentials)
 
@@ -69,7 +63,7 @@ def _sync_weather_data(execution_date):
 
 
 
-def build_sync_dag(dag_configs=None):
+def build_sync_dag():
     with DAG(
         dag_id='sync_weather_data',
         description='requests data from srg meteo api, writes dict to json ',
