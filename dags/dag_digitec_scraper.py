@@ -1,5 +1,6 @@
 from time import time
 from datetime import datetime
+from configurations.configs import LOCAL_DEV, PRODUCTION
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.operators.empty import EmptyOperator
@@ -11,7 +12,10 @@ from dags.dag_utils import update_connection, get_aws_session_credentials
 
 # dynamic environment settings
 ENVIRONMENT_VAR = "ENVIRONMENT"
-ENVIRONMENT = Variable.get(ENVIRONMENT_VAR, default_var='LOCAL_DEV')
+ENVIRONMENT = LOCAL_DEV if Variable.get(ENVIRONMENT_VAR, default_var='LOCAL_DEV') == 'LOCAL_DEV' else PRODUCTION
+START_DATE = ENVIRONMENT.dag_start_date
+END_DATE = ENVIRONMENT.dag_end_data
+S3_CONNECTION = ENVIRONMENT.connections.get('S3')
 
 # runtime configs
 RUNTIME_CONFIG_VAR = "scrape_digitec_data_runtime_config"
@@ -19,12 +23,10 @@ RUNTIME_CONFIG = Variable.get(RUNTIME_CONFIG_VAR,
                               deserialize_json=True,
                               default_var={})
 
-S3_CONNECTION = 'S3_DEVELOPMENT' if ENVIRONMENT == 'LOCAL_DEV' else 'S3_PRODUCTION'
-
 
 def _scrape_digitec_data(execution_date):
 
-    if ENVIRONMENT != 'LOCAL_DEV':
+    if ENVIRONMENT.environment != 'LOCAL_DEV':
         aws_session_credentials = get_aws_session_credentials(time())
         update_connection(S3_CONNECTION, _extra=aws_session_credentials)
 
@@ -32,7 +34,6 @@ def _scrape_digitec_data(execution_date):
 
     filename = "digitec_day_deals"
     sink = ScraperDataSink(S3_CONNECTION, filename)
-
     usecase = ScrapeProducts(source=source, sink=sink)
     usecase.execute_usecase(execution_date=execution_date)
 
