@@ -11,5 +11,5 @@ class ScraperDataSource(ABC):
 class ScraperDataSink(ABC):
 
     @abstractmethod
-    def export(self, data):
+    def export(self, data, execution_date):
         pass

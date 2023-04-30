@@ -4,10 +4,27 @@ from airflow.models import Variable
 from airflow.operators.python import PythonOperator
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.hooks.S3_hook import S3Hook
+from base.configurations.db_config import DatabaseConfig
 from scraper_data_db_pipeline.adapters.scraper_data_db_source import ScraperDataSourceAdapter
+from scraper_data_db_pipeline.adapters.scraper_data_db_sink import ScraperDataSinkAdapter
+from scraper_data_db_pipeline.usecases.deliver_scraper_data import DeliverScraperData
 
 CONNECTION = 'S3_DEVELOPMENT'
 BUCKET = 's3-raw-data-dwl23'
+
+
+def _get_database():
+    db_config = Variable.get('DATABASE_CONFIG', deserialize_json=True)
+
+    database = DatabaseConfig(
+        hostname=db_config.get('hostname'),
+        port=db_config.get('port'),
+        user=db_config.get('user'),
+        password=db_config.get('password'),
+        db_name=db_config.get('database_name')
+    )
+
+    return database
 
 
 def _check_file(execution_date, filetype, bucket):
@@ -27,11 +44,14 @@ def _check_if_file_exists(scraper_name, execution_date):
 
 def _load_digitec_file_from_storage(execution_date):
 
-    source = ScraperDataSourceAdapter('digitec', CONNECTION, BUCKET)
+    database = _get_database()
 
-    data = source.read_source(execution_date)
+    source = ScraperDataSourceAdapter(scraper_name='digitec', connection=CONNECTION, bucket=BUCKET)
+    sink = ScraperDataSinkAdapter(scraper_name='digitec', db_config=database)
 
-    print(data)
+    usecase = DeliverScraperData(source=source,
+                                 sink=sink)
+    usecase.execute_usecase(execution_date)
 
 
 def _load_galaxus_file_from_storage(execution_date):
