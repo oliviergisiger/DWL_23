@@ -41,7 +41,7 @@ class ScraperDataSinkAdapter(ScraperDataSink):
 
         df['weight_gram'] = df['weight'].apply(lambda x: float(x.split()[0]) * 1000 if 'kg' in x else float(x.split()[0]))
         df.drop(columns=['weight'], inplace=True)
-        df['scraping_date'] = execution_date
+        df['scraping_date'] = execution_date.date()
 
         return df
 
