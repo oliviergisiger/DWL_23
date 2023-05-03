@@ -42,7 +42,7 @@ def _check_if_file_exists(scraper_name, execution_date):
                 bucket=bucket)
 
 
-def _load_digitec_file_from_storage(execution_date):
+def _load_digitec_file_from_storage_to_db(execution_date):
 
     database = _get_database()
 
@@ -54,13 +54,16 @@ def _load_digitec_file_from_storage(execution_date):
     usecase.execute_usecase(execution_date)
 
 
-def _load_galaxus_file_from_storage(execution_date):
+def _load_galaxus_file_from_storage_to_db(execution_date):
+
+    database = _get_database()
 
     source = ScraperDataSourceAdapter('galaxus', CONNECTION, BUCKET)
+    sink = ScraperDataSinkAdapter(scraper_name='galaxus', db_config=database)
 
-    data = source.read_source(execution_date)
-
-    print(data)
+    usecase = DeliverScraperData(source=source,
+                                 sink=sink)
+    usecase.execute_usecase(execution_date)
 
 
 def build_deliver_dag(dag_configs=None):
@@ -84,17 +87,18 @@ def build_deliver_dag(dag_configs=None):
             task_id='check_digitec_file',
             python_callable=_check_if_file_exists,
             op_kwargs={
-                'scraper_name': 'digitec'}
+                'scraper_name': 'digitec'
+            }
         )
 
         load_digitec_file = PythonOperator(
             task_id='load_digitec_file',
-            python_callable=_load_digitec_file_from_storage
+            python_callable=_load_digitec_file_from_storage_to_db
         )
 
         check_galaxus_file = PythonOperator(
             task_id='check_galaxus_file',
-            python_callable=_load_galaxus_file_from_storage,
+            python_callable=_load_galaxus_file_from_storage_to_db,
             op_kwargs={
                 'scraper_name': 'galaxus'
             }
@@ -102,7 +106,7 @@ def build_deliver_dag(dag_configs=None):
 
         load_galaxus_file = PythonOperator(
             task_id='load_galaxus_file',
-            python_callable=_load_galaxus_file_from_storage
+            python_callable=_load_galaxus_file_from_storage_to_db
         )
 
         start.set_downstream([check_digitec_file, check_galaxus_file])

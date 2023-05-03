@@ -11,7 +11,7 @@ class DeliverScraperData:
         self._sink = sink
 
     def execute_usecase(self, execution_date):
-        data = self._source.read_source()
+        data = self._source.read_source(execution_date)
         self._sink.export(data, execution_date)
 
 
