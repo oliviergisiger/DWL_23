@@ -1,4 +1,4 @@
-from configurations.configs import START_DATE, END_DATE
+from configurations.configs import LOCAL_DEV, PRODUCTION
 from base.configurations.db_config import DatabaseConfig
 from airflow.models import DAG
 from airflow.models import Variable
@@ -9,7 +9,23 @@ from weather_data.adapters.weather_data_source import WeatherDataSourceAdapter
 from weather_data.adapters.weather_data_sink import WeatherDataSinkAdapter
 from weather_data.usecases.deliver_weather_data import DeliverWeatherData
 
-CONNECTION = 'S3_DEVELOPMENT'
+
+
+# dynamic environment settings
+ENVIRONMENT_VAR = "ENVIRONMENT"
+ENVIRONMENT = LOCAL_DEV if Variable.get(ENVIRONMENT_VAR, default_var='LOCAL_DEV') == 'LOCAL_DEV' else PRODUCTION
+START_DATE = ENVIRONMENT.dag_start_date
+END_DATE = ENVIRONMENT.dag_end_data
+S3_CONNECTION = ENVIRONMENT.connections.get('S3')
+
+# runtime configs
+RUNTIME_CONFIG_VAR = "sync_weather_data_runtime_config"
+RUNTIME_CONFIG = Variable.get(RUNTIME_CONFIG_VAR,
+                              deserialize_json=True,
+                              default_var={})
+
+# static configs
+FILETYPE_CONFIGS = {'filetype': 'weather_data_bern'}
 BUCKET = 's3-raw-data-dwl23'
 
 
@@ -27,9 +43,8 @@ def _get_database():
     return database
 
 
-
 def _check_file(execution_date, filetype, bucket):
-    source_file_system = S3Hook(CONNECTION)
+    source_file_system = S3Hook(S3_CONNECTION)
     filename = f'{filetype}_{execution_date.date()}.json'
     print(filename)
     return source_file_system.check_for_key(key=filename, bucket_name=bucket)
@@ -44,15 +59,11 @@ def _check_if_file_exists(execution_date):
                 bucket=bucket)
 
 
-
-
 def _load_file_from_storage(execution_date):
 
-
-    filetype = 'weather_data_bern'
     database = _get_database()
 
-    source = WeatherDataSourceAdapter(CONNECTION, BUCKET)
+    source = WeatherDataSourceAdapter(S3_CONNECTION, BUCKET)
     sink = WeatherDataSinkAdapter(db_config=database)
 
     usecase = DeliverWeatherData(source=source,
@@ -65,7 +76,7 @@ def build_deliver_dag(dag_configs=None):
     with DAG(
         dag_id='deliver_weather_data',
         description='test',
-        schedule_interval='0 12 * * *',
+        schedule_interval=None,
         start_date=START_DATE,
         end_date=END_DATE
     ) as dag:
