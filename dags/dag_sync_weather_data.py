@@ -4,6 +4,7 @@ from time import time
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.operators.dummy_operator import DummyOperator
+from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from api_sync.usecases.sync_api_usecase import SyncAPI
 from api_sync.adapters.sync_api_source import APISyncRequestSourceRaw
 from api_sync.adapters.sync_api_sink import APISyncRequestSinkRaw
@@ -76,6 +77,13 @@ def build_sync_dag():
             task_id='start'
         )
 
+        trigger_deliver = TriggerDagRunOperator(
+            task_id='trigger_deliver',
+            trigger_dag_id='deliver_weather_data',
+            execution_date="{{ ds }}",
+            reset_dag_run=True
+        )
+
         end = DummyOperator(
             task_id='end'
         )
@@ -86,7 +94,8 @@ def build_sync_dag():
         )
 
         start.set_downstream(sync_weather_data)
-        sync_weather_data.set_downstream(end)
+        sync_weather_data.set_downstream(trigger_deliver)
+        trigger_deliver.set_downstream(end)
 
     return dag
 

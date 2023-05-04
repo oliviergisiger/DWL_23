@@ -43,7 +43,6 @@ def _get_database():
     return database
 
 
-
 def _check_file(execution_date, filetype, bucket):
     source_file_system = S3Hook(S3_CONNECTION)
     filename = f'{filetype}_{execution_date.date()}.json'
@@ -60,12 +59,8 @@ def _check_if_file_exists(execution_date):
                 bucket=bucket)
 
 
-
-
 def _load_file_from_storage(execution_date):
 
-
-    filetype = 'weather_data_bern'
     database = _get_database()
 
     source = WeatherDataSourceAdapter(S3_CONNECTION, BUCKET)
@@ -81,7 +76,7 @@ def build_deliver_dag(dag_configs=None):
     with DAG(
         dag_id='deliver_weather_data',
         description='test',
-        schedule_interval='0 12 * * *',
+        schedule_interval=None,
         start_date=START_DATE,
         end_date=END_DATE
     ) as dag:
