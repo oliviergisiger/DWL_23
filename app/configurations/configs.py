@@ -1,10 +1,6 @@
 from datetime import datetime
 from dataclasses import dataclass
 
-#
-START_DATE = datetime(2023, 3, 25)
-END_DATE = datetime(2023, 3, 31)
-
 
 @dataclass
 class Environment:
