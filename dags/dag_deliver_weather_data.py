@@ -19,14 +19,14 @@ END_DATE = ENVIRONMENT.dag_end_data
 S3_CONNECTION = ENVIRONMENT.connections.get('S3')
 
 # runtime configs
-RUNTIME_CONFIG_VAR = "sync_weather_data_runtime_config"
+RUNTIME_CONFIG_VAR = "deliver_weather_data_runtime_config"
 RUNTIME_CONFIG = Variable.get(RUNTIME_CONFIG_VAR,
                               deserialize_json=True,
                               default_var={})
 
 # static configs
 FILETYPE_CONFIGS = {'filetype': 'weather_data_bern'}
-BUCKET = 's3-raw-data-dwl23'
+BUCKET = 's3-raw-data-dwl23.1'
 
 
 def _get_database():

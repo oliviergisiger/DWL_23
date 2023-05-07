@@ -1,3 +1,4 @@
+from configurations.configs import LOCAL_DEV, PRODUCTION
 from datetime import datetime
 from airflow.models import DAG
 from airflow.models import Variable
@@ -9,8 +10,23 @@ from scraper_data_db_pipeline.adapters.scraper_data_db_source import ScraperData
 from scraper_data_db_pipeline.adapters.scraper_data_db_sink import ScraperDataSinkAdapter
 from scraper_data_db_pipeline.usecases.deliver_scraper_data import DeliverScraperData
 
-CONNECTION = 'S3_DEVELOPMENT'
-BUCKET = 's3-raw-data-dwl23'
+
+# dynamic environment settings
+ENVIRONMENT_VAR = "ENVIRONMENT"
+ENVIRONMENT = LOCAL_DEV if Variable.get(ENVIRONMENT_VAR, default_var='LOCAL_DEV') == 'LOCAL_DEV' else PRODUCTION
+START_DATE = ENVIRONMENT.dag_start_date
+END_DATE = ENVIRONMENT.dag_end_data
+S3_CONNECTION = ENVIRONMENT.connections.get('S3')
+
+# runtime configs
+RUNTIME_CONFIG_VAR = "deliver_scraper_data_runtime_config"
+RUNTIME_CONFIG = Variable.get(RUNTIME_CONFIG_VAR,
+                              deserialize_json=True,
+                              default_var={})
+
+# static configs
+FILETYPE_CONFIGS = {'filetype': 'weather_data_bern'}
+BUCKET = 's3-raw-data-dwl23.1'
 
 
 def _get_database():
@@ -28,7 +44,7 @@ def _get_database():
 
 
 def _check_file(execution_date, filetype, bucket):
-    source_file_system = S3Hook(CONNECTION)
+    source_file_system = S3Hook(S3_CONNECTION)
     filename = f'{filetype}_{execution_date.date()}.json'
     print(filename)
     return source_file_system.check_for_key(key=filename, bucket_name=bucket)
@@ -46,7 +62,7 @@ def _load_digitec_file_from_storage_to_db(execution_date):
 
     database = _get_database()
 
-    source = ScraperDataSourceAdapter(scraper_name='digitec', connection=CONNECTION, bucket=BUCKET)
+    source = ScraperDataSourceAdapter(scraper_name='digitec', connection=S3_CONNECTION, bucket=BUCKET)
     sink = ScraperDataSinkAdapter(scraper_name='digitec', db_config=database)
 
     usecase = DeliverScraperData(source=source,
@@ -58,7 +74,7 @@ def _load_galaxus_file_from_storage_to_db(execution_date):
 
     database = _get_database()
 
-    source = ScraperDataSourceAdapter('galaxus', CONNECTION, BUCKET)
+    source = ScraperDataSourceAdapter('galaxus', S3_CONNECTION, BUCKET)
     sink = ScraperDataSinkAdapter(scraper_name='galaxus', db_config=database)
 
     usecase = DeliverScraperData(source=source,
