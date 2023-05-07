@@ -65,7 +65,13 @@ class DigitecDayDealScraper(ScraperSource):
             soup = BeautifulSoup(r.content, 'lxml')
 
             name = soup.find('h1', class_='sc-12r9jwk-0 cJkTme').text
-            price = float(soup.find('div', class_='sc-18ppxou-1 eEeWeQ').text.split('.')[0])
+
+            try:
+                price = float(soup.find('div', class_='sc-18ppxou-1 eEeWeQ').text.split('.')[0])
+            except ValueError:
+                print(f"{url} has no price")
+                continue
+
             # Narrow down navigation section to get category
             navigation = soup.find('ol', class_='sc-4cfuhz-2 gxutTT')
             navigation_parts = navigation.find_all('li', class_='sc-4cfuhz-3 fliurc')
