@@ -3,19 +3,19 @@ from airflow.models import Connection
 import requests
 import re
 import json
-
+from datetime import time
 
 
 
 
 
 def get_aws_session_credentials(expiration_time):
-    URL = 'https://labs.vocareum.com/util/vcput.php?a=getaws&type=1&stepid=1569030&version=0&v=0&vockey=rUvDz4fZExx3whMjpx7S%2Bg%3D%3D'
+    URL = 'https://labs.vocareum.com/util/vcput.php?a=getaws&type=1&stepid=1569028&version=0&v=0&vockey=rUvDz4fZExx3whMjpx7S%2Bg%3D%3D'
     PARAMS = {
         'authority': 'labs.vocareum.com',
         'accept': '*/*',
         'accept-language': 'de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7',
-        'cookie': f'currentassignment=1569029; userid=2428323; usingLTI=1; myfolder=5bdbb6c1e99eed3754a27e43cbd1721f; currentcourse=vc_2_0_53f47000org265_304; logintoken=ae705c64ee8a1d86cdc4cd10d202ba69; tokenExpire={expiration_time}; usertoken=ae705c64ee8a1d86cdc4cd10d202ba69; t2fausers=ae705c64ee8a1d86cdc4cd10d202ba69; vocuserid=2428323',
+        'cookie': f'userid=2428323; usingLTI=1; vocuserid=2428323; myfolder=5bdbb6c1e99eed3754a27e43cbd1721f; currentcourse=vc_2_0_11992abdorg265_304; currentassignment=1569027; logintoken=5d88c860688dda17ec6dbf86d4387fad; tokenExpire={expiration_time}; usertoken=5d88c860688dda17ec6dbf86d4387fad; t2fausers=5d88c860688dda17ec6dbf86d4387fad',
         'referer': 'https://labs.vocareum.com/main/main.php?m=clabide&mode=s&asnid=1569029&stepid=1569030&hideNavBar=1',
         'sec-ch-ua': '"Not_A Brand";v="99", "Google Chrome";v="109", "Chromium";v="109"',
         'sec-ch-ua-mobile': '?0',
@@ -46,5 +46,4 @@ def update_connection(connection_id: str, _extra):
 
 
 if __name__ == '__main__':
-    #
     pass
