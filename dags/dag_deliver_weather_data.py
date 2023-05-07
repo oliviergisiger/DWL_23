@@ -26,7 +26,7 @@ RUNTIME_CONFIG = Variable.get(RUNTIME_CONFIG_VAR,
 
 # static configs
 FILETYPE_CONFIGS = {'filetype': 'weather_data_bern'}
-BUCKET = 's3-raw-data-dwl23'
+BUCKET = 's3-raw-data-dwl23.1'
 
 
 def _get_database():
