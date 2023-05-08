@@ -9,7 +9,10 @@ class APISyncRequestSourceRaw(APISyncRequestSource):
         self._url = url
         self._headers = headers
 
-    def get_json(self):
+    def get_json(self, cols=[]):
         response = requests.get(url=self._url, headers=self._headers)
-        return response.json()
+        if not cols:
+            return response.json()
+
+        return {k: v for k, v in zip(cols, response.text.split('\n'))}
 

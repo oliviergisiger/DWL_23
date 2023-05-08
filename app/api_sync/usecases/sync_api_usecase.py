@@ -11,8 +11,8 @@ class SyncAPI:
         self._sink = sink
 
 
-    def execute_usecase(self, execution_date):
-        data = self._source.get_json()
+    def execute_usecase(self, execution_date, cols=[]):
+        data = self._source.get_json(cols)
         self._sink.write_to_s3(data=data, execution_date=execution_date)
 
 
