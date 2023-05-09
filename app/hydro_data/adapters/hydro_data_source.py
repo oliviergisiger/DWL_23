@@ -1,6 +1,6 @@
 from hydro_data.ports.hydro_data import HydroDataSource
 from airflow.hooks.S3_hook import S3Hook
-import pandas as pd
+
 
 
 class HydroDataSourceAdapter(HydroDataSource):
