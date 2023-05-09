@@ -14,8 +14,11 @@ class APISyncRequestSinkRaw(APISyncRequestSink):
         self._connection = connection
 
 
-    def write_to_s3(self, data: Dict, execution_date: date):
-        filename = self._get_file_name(self._filetype, execution_date.date())
+    def write_to_s3(self, data: Dict, execution_date: date, time_filename=False):
+        if time_filename:
+            filename = self._get_file_name(self._filetype, execution_date.strftime('%y-%m-%dT%H%M'))
+        else:
+            filename = self._get_file_name(self._filetype, execution_date.date())
         bytes_json = json.dumps(data).encode('utf-8')
 
         s3 = S3Hook(self._connection)

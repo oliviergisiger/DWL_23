@@ -9,7 +9,12 @@ class APISyncRequestSourceRaw(APISyncRequestSource):
         self._url = url
         self._headers = headers
 
-    def get_json(self):
+    def get_json(self, cols=[]):
         response = requests.get(url=self._url, headers=self._headers)
-        return response.json()
+        if not cols:
+            return response.json()
+
+        resp_clean = {k: v for k, v in zip(cols, response.text.split('\n'))}
+        resp_clean['local_date_time'] = response.headers.get('date')
+        return resp_clean
 
