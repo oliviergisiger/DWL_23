@@ -14,5 +14,7 @@ class APISyncRequestSourceRaw(APISyncRequestSource):
         if not cols:
             return response.json()
 
-        return {k: v for k, v in zip(cols, response.text.split('\n'))}
+        resp_clean = {k: v for k, v in zip(cols, response.text.split('\n'))}
+        resp_clean['local_date_time'] = response.headers.get('date')
+        return resp_clean
 
