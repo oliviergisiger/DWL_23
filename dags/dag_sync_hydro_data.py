@@ -53,7 +53,7 @@ def _sync_hydro_data(execution_date):
     sink = APISyncRequestSinkRaw(filetype=FILETYPE_CONFIGS.get('filetype'),
                                  connection=S3_CONNECTION)
     usecase = SyncAPI(source=source, sink=sink)
-    usecase.execute_usecase(execution_date=execution_date, cols=COLS)
+    usecase.execute_usecase(execution_date=execution_date, cols=COLS, time_filename=True)
 
     # to be used later as an xcom
     return str(execution_date)
@@ -64,7 +64,7 @@ def build_sync_dag():
     with DAG(
         dag_id='sync_hydro_data',
         description='requests data from aare guru api, writes dict to json ',
-        schedule_interval='30 12 * * *',
+        schedule_interval='0 2,5,8,11,14,17,20,23 * * *',
         catchup=False,
         start_date=START_DATE,
         end_date=END_DATE
@@ -82,9 +82,16 @@ def build_sync_dag():
             python_callable=_sync_hydro_data
         )
 
+        trigger_deliver = TriggerDagRunOperator(
+            task_id='trigger_deliver',
+            trigger_dag_id='deliver_hydro_data',
+            execution_date="{{ execution_date }}",
+            reset_dag_run=True
+        )
+
         start.set_downstream(sync_hydro_data)
-        # sync_weather_data.set_downstream(trigger_deliver)
-        sync_hydro_data.set_downstream(end)
+        sync_hydro_data.set_downstream(trigger_deliver)
+        trigger_deliver.set_downstream(end)
 
     return dag
 
