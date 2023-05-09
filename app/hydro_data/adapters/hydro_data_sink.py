@@ -4,7 +4,6 @@ from sqlalchemy import create_engine
 from base.configurations.db_config import DatabaseConfig
 from hydro_data.ports.hydro_data import HydroDataSink
 from hydro_data.capabilities.database_orm import hydro_data_table
-from hydro_data.adapters import WEATHER_DATA_CONFIGS as cfg
 
 
 class HydroDataSinkAdapter(HydroDataSink):
