@@ -131,7 +131,7 @@ class GalaxusDayDealScraper(ScraperSource):
 
                     compensation_price = WebDriverWait(driver, 10).until(EC.presence_of_element_located(
                         (By.XPATH, '//td[contains(text(), "Compensation amount")]/following-sibling::td'))).text.strip()
-                    compensation_price = compensation_price.split("CHF ")[1].replace("’", "")
+                    compensation_price = compensation_price.split("CHF ")[1].replace("’", "").replace("–", "")
                     compensation_price = float(compensation_price)
 
                     emission = WebDriverWait(driver, 10).until(
