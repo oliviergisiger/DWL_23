@@ -204,7 +204,7 @@ To run the web scraper and Airflow locally, we need a database to store the scra
 
         2. **Connection Type:** `Amazon Web Services`
 
-        3. **Extra (credentials from step 4 needed):**
+        3. **Extra (credentials from step 3. needed):**
 
            `{`
 
