@@ -102,11 +102,8 @@ The following section describes the local installation of the project. This setu
 
 ```
 git clone https://YOURGITHUBUSERNAME@github.com/oliviergisiger/DWL_23.git
-pw: GITHUBTOKEN
 cd DWL_23
 ```
-
-* You will be asked for a password which is your personal access token. To generate your personal access token, do the following: From your GitHub account, go to **Settings** → **Developer Settings** → **Personal Access Token** → **Generate New Token** (Give your password) → **Fillup the form** → click **Generate token** → **Copy the generated Token**, it will be something like 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. (:exclamation:save your token as you won't be able to access it anymore after generation)
 
 2. **Install/Run Docker:**
 
