@@ -1,6 +1,6 @@
 # Contextualizing CO2 emissions to strengthen compensation transparency and to derive appropriate actions
 
-This project represents the main repository for the semester project of the moduel *Data Warehouse and Data Lake* at the Lucerne University of Applied Sciences and Arts (HSLU). It represents an ETL process that extracts product emissions by scraping and weather information by API calls and stores it in a data lake. This The data is then loaded into a data warehouse. The orchestration of the pipelines is done with Airflow. This repository builds the data engineering part to reach the goal of creating a platform that helps users to translate the emissions caused by a specific product by providing them with transparent, actionable compensation methods that show for how much, with what and how long it would take to compensate the emission. 
+This project represents the main repository for the semester project of the moduel *Data Warehouse and Data Lake* at the Lucerne University of Applied Sciences and Arts (HSLU). It represents an ETL process that extracts product emissions by scraping and weather information by API calls and stores it in a data lake (object storage). This data is then loaded into a data warehouse (relational database). The orchestration of the pipelines is done with Apache Airflow. This repository builds the data engineering part to reach the goal of creating a platform that helps users to translate the emissions caused by a specific product by providing them with transparent, actionable compensation methods that show for how much, with what and how long it would take to compensate the emission. 
 
 ## Project structure
 
@@ -86,7 +86,6 @@ This project represents the main repository for the semester project of the modu
 |   |-- dag_sync_hydro_data.py
 |   |-- dag_sync_weather_data.py
 |   `-- dag_utils.py
-|-- BYPASS_SESSION_LIMIT.md
 |-- README.md
 |-- Pipfile
 |-- Pipfile.lock
